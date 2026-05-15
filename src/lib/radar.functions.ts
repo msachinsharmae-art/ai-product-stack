@@ -148,7 +148,7 @@ export const generateBrief = createServerFn({ method: "POST" }).handler(async ()
     .single();
   if (insertErr) throw new Error(`Failed to save brief: ${insertErr.message}`);
 
-  return { id: row.id, title, brief, markdown, signalCount: signals.length };
+  return { ok: true as const, id: row.id, title, brief, markdown, signalCount: signals.length };
 });
 
 export const listBriefs = createServerFn({ method: "GET" }).handler(async () => {
