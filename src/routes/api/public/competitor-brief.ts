@@ -9,6 +9,7 @@ export const Route = createFileRoute("/api/public/competitor-brief")({
         if (!secret) return Response.json({ error: "Server not configured" }, { status: 500 });
         const provided =
           request.headers.get("x-webhook-secret") ??
+          request.headers.get("x-api-key") ??
           request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
           "";
         if (provided !== secret) return new Response("Unauthorized", { status: 401 });
@@ -19,12 +20,16 @@ export const Route = createFileRoute("/api/public/competitor-brief")({
             return Response.json({ error: result.reason }, { status: 400 });
           }
           const origin = new URL(request.url).origin;
-          return Response.json({
-            id: result.id,
-            title: result.title,
-            signalCount: result.signalCount,
-            shareUrl: `${origin}/radar/${result.id}`,
-          });
+          const tokenQs = result.shareToken ? `?token=${result.shareToken}` : "";
+          return Response.json(
+            {
+              id: result.id,
+              title: result.title,
+              signalCount: result.signalCount,
+              shareUrl: `${origin}/radar/${result.id}${tokenQs}`,
+            },
+            { status: result.existed ? 200 : 201 },
+          );
         } catch (e) {
           return Response.json(
             { error: e instanceof Error ? e.message : "Failed" },
