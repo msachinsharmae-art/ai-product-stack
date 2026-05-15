@@ -6,6 +6,7 @@ import {
   pushToNotion,
   pushToGoogleDocs,
   pushToSlack,
+  emailPRD,
   type PRDResult,
 } from "@/lib/prd.functions";
 
