@@ -41,7 +41,7 @@ function Landing() {
             href="#contact"
             className="rounded-full bg-white px-4 py-1.5 text-xs font-semibold text-black transition hover:bg-white/90"
           >
-            Hire Sachin
+            Let&apos;s connect
           </a>
         </div>
       </header>
@@ -246,8 +246,8 @@ function Landing() {
               CS-to-Product problems.
             </p>
             <p>
-              If you&apos;re hiring for <strong className="text-white">PM, APM, or Business Analyst</strong> roles
-              and want someone who already speaks both customer and product — let&apos;s talk.
+              If you&apos;re building in <strong className="text-white">product, AI, or customer-led growth</strong>{" "}
+              and want to swap notes — or just nerd out on workflows that make PMs faster — let&apos;s connect.
             </p>
           </div>
         </div>
@@ -260,11 +260,11 @@ function Landing() {
             <div className="absolute -top-20 -right-20 h-60 w-60 rounded-full bg-emerald-500/20 blur-3xl" />
             <div className="relative">
               <h2 className="text-4xl font-black tracking-tight md:text-5xl">
-                Open to PM / APM / BA roles.
+                Let&apos;s build something together.
               </h2>
               <p className="mt-4 max-w-xl text-lg text-white/70">
-                Currently shipping the AI Product Ops Stack in public. Available for full-time roles
-                that value builders who think in systems.
+                I share what I ship — workflows, PRDs, the messy in-between.
+                If any of it sparks a conversation, my inbox is open.
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
