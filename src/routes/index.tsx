@@ -41,7 +41,7 @@ function Landing() {
             href="#contact"
             className="rounded-full bg-white px-4 py-1.5 text-xs font-semibold text-black transition hover:bg-white/90"
           >
-            Hire Sachin
+            Let&apos;s connect
           </a>
         </div>
       </header>
