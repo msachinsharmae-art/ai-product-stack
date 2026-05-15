@@ -218,6 +218,14 @@ export function BriefCard({
   createdAt: string;
   signalCount: number;
 }) {
+  // Defensive: tolerate older/alternate brief shapes from earlier inserts
+  const shipped = brief?.shipped ?? [];
+  const pricingMoves = brief?.pricingMoves ?? (brief as never as { pricing?: BriefStruct["pricingMoves"] })?.pricing ?? [];
+  const negativeSignals = brief?.negativeSignals ?? (brief as never as { negative_signals?: BriefStruct["negativeSignals"] })?.negative_signals ?? [];
+  const hiringSignals = brief?.hiringSignals ?? (brief as never as { hiring?: BriefStruct["hiringSignals"] })?.hiring ?? [];
+  const headline = brief?.headline ?? (brief as never as { title?: string })?.title ?? title;
+  const takeaway = brief?.takeaway ?? (brief as never as { summary?: string })?.summary ?? "";
+
   return (
     <article className="overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent p-8 md:p-10">
       <div className="flex items-center justify-between text-xs text-white/50">
@@ -226,11 +234,11 @@ export function BriefCard({
           {signalCount} signals · {new Date(createdAt).toLocaleString()}
         </span>
       </div>
-      <h3 className="mt-3 text-3xl font-black leading-tight md:text-4xl">{brief.headline}</h3>
+      <h3 className="mt-3 text-3xl font-black leading-tight md:text-4xl">{headline}</h3>
 
       <div className="mt-8 grid gap-6 md:grid-cols-2">
-        <Section title="🚀 Shipped" empty="Nothing notable shipped." count={brief.shipped.length}>
-          {brief.shipped.map((s, i) => (
+        <Section title="🚀 Shipped" empty="Nothing notable shipped." count={shipped.length}>
+          {shipped.map((s, i) => (
             <Item key={i} title={`${s.competitor} — ${s.what}`} note={s.whySoWhat} url={s.url} />
           ))}
         </Section>
