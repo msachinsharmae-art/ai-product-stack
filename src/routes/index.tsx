@@ -54,7 +54,7 @@ function Landing() {
         <div className="relative mx-auto max-w-6xl px-6 pb-24 pt-20 md:pt-32">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-            Built in public · Day 1 of 8
+            Live · PRD Autopilot v1 shipped
           </div>
 
           <h1 className="mt-6 max-w-4xl text-5xl font-black leading-[1.05] tracking-tight md:text-7xl">
