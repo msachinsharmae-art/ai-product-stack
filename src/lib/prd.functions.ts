@@ -301,6 +301,65 @@ export const pushToSlack = createServerFn({ method: "POST" })
     return { ts: out.ts, channel: out.channel };
   });
 
+const EmailSchema = z.object({
+  prdId: z.string().uuid(),
+  to: z.string().email(),
+});
+
+export const emailPRD = createServerFn({ method: "POST" })
+  .inputValidator((i) => EmailSchema.parse(i))
+  .handler(async ({ data }): Promise<{ id: string }> => {
+    const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
+    const RESEND_API_KEY = process.env.RESEND_API_KEY;
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY missing");
+    if (!RESEND_API_KEY) throw new Error("RESEND_API_KEY missing — connect Resend");
+
+    const row = await loadPRD(data.prdId);
+    const prd = row.prd_json as PRDStruct;
+
+    const links: string[] = [];
+    if (row.notion_url) links.push(`<a href="${row.notion_url}" style="color:#10b981">📝 Notion</a>`);
+    if (row.google_doc_url) links.push(`<a href="${row.google_doc_url}" style="color:#10b981">📄 Google Doc</a>`);
+    const shareUrl = `https://project--f1f55728-b17e-40a1-bd4b-3fd32c932927-dev.lovable.app/p/${row.id}`;
+    links.push(`<a href="${shareUrl}" style="color:#10b981">🔗 Share page</a>`);
+
+    const goals = prd.goals.slice(0, 3).map((g) => `<li style="margin:4px 0">${g}</li>`).join("");
+
+    const html = `<!doctype html><html><body style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;background:#0a0a0f;color:#fff;margin:0;padding:0">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0f">
+<tr><td align="center" style="padding:32px 16px">
+  <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#11111a;border-radius:16px;border:1px solid rgba(255,255,255,0.08)">
+    <tr><td style="padding:32px">
+      <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#10b981;font-weight:600">PRD Autopilot · Digest</div>
+      <h1 style="font-size:28px;font-weight:800;margin:8px 0 16px;color:#fff;line-height:1.2">${prd.title}</h1>
+      <p style="font-size:14px;color:rgba(255,255,255,0.7);margin:0 0 24px;line-height:1.6">${prd.problem}</p>
+      <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.5);font-weight:600">Top Goals</div>
+      <ul style="font-size:14px;color:rgba(255,255,255,0.85);margin:8px 0 24px;padding-left:18px">${goals}</ul>
+      <div style="margin-top:24px;padding-top:24px;border-top:1px solid rgba(255,255,255,0.08);font-size:13px">${links.join(" &nbsp;·&nbsp; ")}</div>
+    </td></tr>
+  </table>
+  <p style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:16px">Built by Sachin Kumar Sharma · AI Product Ops Stack</p>
+</td></tr></table></body></html>`;
+
+    const res = await fetch("https://connector-gateway.lovable.dev/resend/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "X-Connection-Api-Key": RESEND_API_KEY,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: "PRD Autopilot <onboarding@resend.dev>",
+        to: [data.to],
+        subject: `📋 PRD: ${prd.title}`,
+        html,
+      }),
+    });
+    const out = await res.json();
+    if (!res.ok) throw new Error(`Resend failed [${res.status}]: ${JSON.stringify(out)}`);
+    return { id: out.id ?? "sent" };
+  });
+
 export const listPRDs = createServerFn({ method: "GET" }).handler(async () => {
   const { data, error } = await supabaseAdmin
     .from("prds")
