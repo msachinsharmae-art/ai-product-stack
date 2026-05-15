@@ -62,6 +62,7 @@ function RadarPage() {
           <nav className="flex items-center gap-5 text-sm text-white/60">
             <Link to="/demo" className="transition hover:text-white">PRD</Link>
             <Link to="/radar" className="text-white">Radar</Link>
+            <Link to="/competitors" className="transition hover:text-white">Competitors</Link>
             <Link to="/dashboard" className="transition hover:text-white">Dashboard</Link>
           </nav>
         </div>
