@@ -277,13 +277,13 @@ function Landing() {
                   LinkedIn →
                 </a>
                 <a
-                  href="mailto:hello@example.com"
+                  href="mailto:msachinsharmae@gmail.com"
                   className="rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/5"
                 >
                   Email me
                 </a>
                 <a
-                  href="https://sachin289.app.n8n.cloud/mcp-server/http"
+                  href="https://sachin289.app.n8n.cloud"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/5"
