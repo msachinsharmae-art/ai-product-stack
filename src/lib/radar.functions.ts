@@ -20,6 +20,26 @@ export const generateBrief = createServerFn({ method: "POST" }).handler(async ()
   const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
   if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
+  // Idempotency: if a brief already exists for today, return it.
+  const today = new Date().toISOString().slice(0, 10);
+  const { data: existing } = await supabaseAdmin
+    .from("competitor_briefs")
+    .select("*")
+    .eq("brief_date", today)
+    .maybeSingle();
+  if (existing) {
+    return {
+      ok: true as const,
+      existed: true as const,
+      id: existing.id as string,
+      title: existing.title as string,
+      brief: existing.brief_json as BriefStruct,
+      markdown: existing.markdown as string,
+      signalCount: existing.signal_count as number,
+      shareToken: (existing as { share_token?: string }).share_token ?? null,
+    };
+  }
+
   // Pull last 24h of signals
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
   const { data: signals, error } = await supabaseAdmin
