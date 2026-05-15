@@ -117,7 +117,20 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <div className="flex min-h-screen flex-col">
+        <div className="flex-1">
+          <Outlet />
+        </div>
+        <footer className="border-t border-border bg-background/50 py-4 text-center text-xs text-muted-foreground">
+          <p>
+            Built &amp; owned by <span className="font-semibold text-foreground">Your Name</span> ·
+            A nights &amp; weekends personal project · Made with Lovable
+          </p>
+          <p className="mt-1 opacity-70">
+            © {new Date().getFullYear()} · Independent work, not affiliated with any employer
+          </p>
+        </footer>
+      </div>
     </QueryClientProvider>
   );
 }
