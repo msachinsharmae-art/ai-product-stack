@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as RadarRouteImport } from './routes/radar'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CompetitorsRouteImport } from './routes/competitors'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RadarIdRouteImport } from './routes/radar.$id'
 import { Route as PIdRouteImport } from './routes/p.$id'
@@ -32,6 +33,11 @@ const DemoRoute = DemoRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompetitorsRoute = CompetitorsRouteImport.update({
+  id: '/competitors',
+  path: '/competitors',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -69,6 +75,7 @@ const ApiPublicCompetitorBriefRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/competitors': typeof CompetitorsRoute
   '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
   '/radar': typeof RadarRouteWithChildren
@@ -80,6 +87,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/competitors': typeof CompetitorsRoute
   '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
   '/radar': typeof RadarRouteWithChildren
@@ -92,6 +100,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/competitors': typeof CompetitorsRoute
   '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
   '/radar': typeof RadarRouteWithChildren
@@ -105,6 +114,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/competitors'
     | '/dashboard'
     | '/demo'
     | '/radar'
@@ -116,6 +126,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/competitors'
     | '/dashboard'
     | '/demo'
     | '/radar'
@@ -127,6 +138,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/competitors'
     | '/dashboard'
     | '/demo'
     | '/radar'
@@ -139,6 +151,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CompetitorsRoute: typeof CompetitorsRoute
   DashboardRoute: typeof DashboardRoute
   DemoRoute: typeof DemoRoute
   RadarRoute: typeof RadarRouteWithChildren
@@ -169,6 +182,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/competitors': {
+      id: '/competitors'
+      path: '/competitors'
+      fullPath: '/competitors'
+      preLoaderRoute: typeof CompetitorsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -228,6 +248,7 @@ const RadarRouteWithChildren = RadarRoute._addFileChildren(RadarRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CompetitorsRoute: CompetitorsRoute,
   DashboardRoute: DashboardRoute,
   DemoRoute: DemoRoute,
   RadarRoute: RadarRouteWithChildren,
@@ -239,3 +260,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
