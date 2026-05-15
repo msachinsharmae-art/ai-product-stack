@@ -1,28 +1,33 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const InputSchema = z.object({
-  // Either audio OR rawText must be provided
   audioBase64: z.string().optional(),
   audioMimeType: z.string().optional(),
   rawText: z.string().optional(),
   featureHint: z.string().max(500).optional(),
 });
 
+export type PRDStruct = {
+  title: string;
+  problem: string;
+  targetUsers: string;
+  goals: string[];
+  nonGoals: string[];
+  userStories: { story: string; acceptanceCriteria: string[] }[];
+  successMetrics: string[];
+  risks: string[];
+  openQuestions: string[];
+};
+
 export type PRDResult = {
+  id: string;
   transcript: string;
-  prd: {
-    title: string;
-    problem: string;
-    targetUsers: string;
-    goals: string[];
-    nonGoals: string[];
-    userStories: { story: string; acceptanceCriteria: string[] }[];
-    successMetrics: string[];
-    risks: string[];
-    openQuestions: string[];
-  };
+  prd: PRDStruct;
   markdown: string;
+  notionUrl?: string | null;
+  googleDocUrl?: string | null;
 };
 
 const PRD_SYSTEM_PROMPT = `You are a Senior Product Manager writing a high-quality PRD.
@@ -35,46 +40,32 @@ export const generatePRD = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<PRDResult> => {
     const GROQ_API_KEY = process.env.GROQ_API_KEY;
     const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
-
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    // 1. Get transcript — either from audio (Groq Whisper) or directly from text
     let transcript = data.rawText?.trim() ?? "";
 
     if (data.audioBase64) {
       if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY is not configured");
-
-      // Decode base64 to Buffer
       const audioBuffer = Buffer.from(data.audioBase64, "base64");
       const mimeType = data.audioMimeType || "audio/webm";
-      const ext = mimeType.includes("mp3")
-        ? "mp3"
-        : mimeType.includes("wav")
-        ? "wav"
-        : mimeType.includes("mp4") || mimeType.includes("m4a")
-        ? "m4a"
+      const ext = mimeType.includes("mp3") ? "mp3"
+        : mimeType.includes("wav") ? "wav"
+        : mimeType.includes("mp4") || mimeType.includes("m4a") ? "m4a"
         : "webm";
 
       const formData = new FormData();
-      const blob = new Blob([audioBuffer], { type: mimeType });
-      formData.append("file", blob, `voice.${ext}`);
+      formData.append("file", new Blob([audioBuffer], { type: mimeType }), `voice.${ext}`);
       formData.append("model", "whisper-large-v3-turbo");
       formData.append("response_format", "json");
 
-      const groqRes = await fetch(
-        "https://api.groq.com/openai/v1/audio/transcriptions",
-        {
-          method: "POST",
-          headers: { Authorization: `Bearer ${GROQ_API_KEY}` },
-          body: formData,
-        }
-      );
-
+      const groqRes = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${GROQ_API_KEY}` },
+        body: formData,
+      });
       if (!groqRes.ok) {
-        const err = await groqRes.text();
-        throw new Error(`Groq transcription failed [${groqRes.status}]: ${err}`);
+        throw new Error(`Groq transcription failed [${groqRes.status}]: ${await groqRes.text()}`);
       }
-
       const groqData = (await groqRes.json()) as { text: string };
       transcript = (data.rawText ? data.rawText + "\n\n" : "") + groqData.text;
     }
@@ -83,7 +74,6 @@ export const generatePRD = createServerFn({ method: "POST" })
       throw new Error("Need at least 10 characters of input (audio or text).");
     }
 
-    // 2. Generate PRD via Lovable AI Gateway (Gemini 2.5) using tool-calling for structured output
     const userPrompt = `${data.featureHint ? `Feature context: ${data.featureHint}\n\n` : ""}Voice memo / notes from the PM:\n"""\n${transcript}\n"""\n\nWrite a complete PRD now.`;
 
     const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -98,120 +88,298 @@ export const generatePRD = createServerFn({ method: "POST" })
           { role: "system", content: PRD_SYSTEM_PROMPT },
           { role: "user", content: userPrompt },
         ],
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "submit_prd",
-              description: "Submit a fully structured PRD.",
-              parameters: {
-                type: "object",
-                properties: {
-                  title: { type: "string", description: "Short, punchy feature title" },
-                  problem: { type: "string", description: "Problem statement (2-4 sentences)" },
-                  targetUsers: { type: "string", description: "Specific user segments" },
-                  goals: { type: "array", items: { type: "string" }, minItems: 2, maxItems: 5 },
-                  nonGoals: { type: "array", items: { type: "string" }, minItems: 1, maxItems: 4 },
-                  userStories: {
-                    type: "array",
-                    minItems: 2,
-                    maxItems: 6,
-                    items: {
-                      type: "object",
-                      properties: {
-                        story: { type: "string", description: "As a [user], I want [goal], so that [benefit]" },
-                        acceptanceCriteria: { type: "array", items: { type: "string" }, minItems: 2 },
-                      },
-                      required: ["story", "acceptanceCriteria"],
+        tools: [{
+          type: "function",
+          function: {
+            name: "submit_prd",
+            description: "Submit a fully structured PRD.",
+            parameters: {
+              type: "object",
+              properties: {
+                title: { type: "string" },
+                problem: { type: "string" },
+                targetUsers: { type: "string" },
+                goals: { type: "array", items: { type: "string" } },
+                nonGoals: { type: "array", items: { type: "string" } },
+                userStories: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      story: { type: "string" },
+                      acceptanceCriteria: { type: "array", items: { type: "string" } },
                     },
+                    required: ["story", "acceptanceCriteria"],
                   },
-                  successMetrics: { type: "array", items: { type: "string" }, minItems: 2, maxItems: 5 },
-                  risks: { type: "array", items: { type: "string" }, minItems: 1, maxItems: 5 },
-                  openQuestions: { type: "array", items: { type: "string" }, minItems: 1, maxItems: 5 },
                 },
-                required: [
-                  "title",
-                  "problem",
-                  "targetUsers",
-                  "goals",
-                  "nonGoals",
-                  "userStories",
-                  "successMetrics",
-                  "risks",
-                  "openQuestions",
-                ],
+                successMetrics: { type: "array", items: { type: "string" } },
+                risks: { type: "array", items: { type: "string" } },
+                openQuestions: { type: "array", items: { type: "string" } },
               },
+              required: ["title", "problem", "targetUsers", "goals", "nonGoals", "userStories", "successMetrics", "risks", "openQuestions"],
             },
           },
-        ],
+        }],
         tool_choice: { type: "function", function: { name: "submit_prd" } },
       }),
     });
 
     if (!aiRes.ok) {
-      if (aiRes.status === 429)
-        throw new Error("AI rate limit hit. Wait a moment and try again.");
-      if (aiRes.status === 402)
-        throw new Error("AI credits exhausted. Top up in Workspace → Usage.");
-      const err = await aiRes.text();
-      throw new Error(`AI gateway error [${aiRes.status}]: ${err}`);
+      if (aiRes.status === 429) throw new Error("AI rate limit hit. Wait a moment and try again.");
+      if (aiRes.status === 402) throw new Error("AI credits exhausted. Top up in Workspace → Usage.");
+      throw new Error(`AI gateway error [${aiRes.status}]: ${await aiRes.text()}`);
     }
 
     const aiData = await aiRes.json();
     const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
-    if (!toolCall?.function?.arguments) {
-      throw new Error("AI did not return a structured PRD.");
-    }
+    if (!toolCall?.function?.arguments) throw new Error("AI did not return a structured PRD.");
 
-    const prd = JSON.parse(toolCall.function.arguments) as PRDResult["prd"];
-
-    // 3. Render markdown for download/copy
+    const prd = JSON.parse(toolCall.function.arguments) as PRDStruct;
     const markdown = renderMarkdown(prd, transcript);
 
-    return { transcript, prd, markdown };
+    // Save to DB
+    const { data: row, error } = await supabaseAdmin
+      .from("prds")
+      .insert({
+        title: prd.title,
+        transcript,
+        prd_json: prd as never,
+        markdown,
+      })
+      .select("id")
+      .single();
+    if (error) throw new Error(`Failed to save PRD: ${error.message}`);
+
+    return { id: row.id, transcript, prd, markdown };
   });
 
-function renderMarkdown(prd: PRDResult["prd"], transcript: string): string {
-  const lines: string[] = [];
-  lines.push(`# ${prd.title}`);
-  lines.push("");
-  lines.push(`> Generated by AI Product Ops Stack · ${new Date().toLocaleDateString()}`);
-  lines.push("");
-  lines.push("## Problem");
-  lines.push(prd.problem);
-  lines.push("");
-  lines.push("## Target Users");
-  lines.push(prd.targetUsers);
-  lines.push("");
-  lines.push("## Goals");
-  prd.goals.forEach((g) => lines.push(`- ${g}`));
-  lines.push("");
-  lines.push("## Non-Goals");
-  prd.nonGoals.forEach((g) => lines.push(`- ${g}`));
-  lines.push("");
-  lines.push("## User Stories");
-  prd.userStories.forEach((us, i) => {
-    lines.push(`### Story ${i + 1}`);
-    lines.push(us.story);
-    lines.push("");
-    lines.push("**Acceptance Criteria:**");
-    us.acceptanceCriteria.forEach((ac) => lines.push(`- ${ac}`));
-    lines.push("");
+/* ---------- Destinations ---------- */
+
+const PushSchema = z.object({ prdId: z.string().uuid() });
+
+async function loadPRD(prdId: string) {
+  const { data, error } = await supabaseAdmin
+    .from("prds")
+    .select("*")
+    .eq("id", prdId)
+    .single();
+  if (error || !data) throw new Error(`PRD not found: ${error?.message ?? "unknown"}`);
+  return data;
+}
+
+export const pushToNotion = createServerFn({ method: "POST" })
+  .inputValidator((i) => PushSchema.parse(i))
+  .handler(async ({ data }): Promise<{ url: string }> => {
+    const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
+    const NOTION_API_KEY = process.env.NOTION_API_KEY;
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY missing");
+    if (!NOTION_API_KEY) throw new Error("NOTION_API_KEY missing — connect Notion");
+
+    const row = await loadPRD(data.prdId);
+    const prd = row.prd_json as PRDStruct;
+
+    const GW = "https://connector-gateway.lovable.dev/notion/v1";
+    const headers = {
+      Authorization: `Bearer ${LOVABLE_API_KEY}`,
+      "X-Connection-Api-Key": NOTION_API_KEY,
+      "Content-Type": "application/json",
+    };
+
+    // Find a parent page the integration has access to
+    const searchRes = await fetch(`${GW}/search`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ filter: { value: "page", property: "object" }, page_size: 1 }),
+    });
+    const searchData = await searchRes.json();
+    if (!searchRes.ok) throw new Error(`Notion search failed: ${JSON.stringify(searchData)}`);
+    const parent = searchData.results?.[0];
+    if (!parent) {
+      throw new Error("No accessible Notion page found. Share a page with the Lovable integration in Notion, then retry.");
+    }
+
+    const blocks = prdToNotionBlocks(prd);
+
+    const createRes = await fetch(`${GW}/pages`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        parent: { type: "page_id", page_id: parent.id },
+        properties: {
+          title: { title: [{ type: "text", text: { content: prd.title } }] },
+        },
+        children: blocks,
+      }),
+    });
+    const created = await createRes.json();
+    if (!createRes.ok) throw new Error(`Notion create failed: ${JSON.stringify(created)}`);
+    const url: string = created.url;
+
+    await supabaseAdmin.from("prds").update({ notion_url: url }).eq("id", data.prdId);
+    return { url };
   });
-  lines.push("## Success Metrics");
-  prd.successMetrics.forEach((m) => lines.push(`- ${m}`));
-  lines.push("");
-  lines.push("## Risks");
-  prd.risks.forEach((r) => lines.push(`- ${r}`));
-  lines.push("");
-  lines.push("## Open Questions");
-  prd.openQuestions.forEach((q) => lines.push(`- ${q}`));
-  lines.push("");
-  lines.push("---");
-  lines.push("");
-  lines.push("## Original Voice Memo / Notes");
-  lines.push("```");
-  lines.push(transcript);
-  lines.push("```");
-  return lines.join("\n");
+
+export const pushToGoogleDocs = createServerFn({ method: "POST" })
+  .inputValidator((i) => PushSchema.parse(i))
+  .handler(async ({ data }): Promise<{ url: string }> => {
+    const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
+    const GDOCS_KEY = process.env.GOOGLE_DOCS_API_KEY;
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY missing");
+    if (!GDOCS_KEY) throw new Error("GOOGLE_DOCS_API_KEY missing — connect Google Docs");
+
+    const row = await loadPRD(data.prdId);
+    const markdown: string = row.markdown;
+    const title: string = row.title;
+
+    const GW = "https://connector-gateway.lovable.dev/google_docs/v1";
+    const headers = {
+      Authorization: `Bearer ${LOVABLE_API_KEY}`,
+      "X-Connection-Api-Key": GDOCS_KEY,
+      "Content-Type": "application/json",
+    };
+
+    const createRes = await fetch(`${GW}/documents`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ title }),
+    });
+    const created = await createRes.json();
+    if (!createRes.ok) throw new Error(`Google Docs create failed: ${JSON.stringify(created)}`);
+    const docId: string = created.documentId;
+
+    await fetch(`${GW}/documents/${docId}:batchUpdate`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        requests: [{ insertText: { location: { index: 1 }, text: markdown + "\n" } }],
+      }),
+    });
+
+    const url = `https://docs.google.com/document/d/${docId}/edit`;
+    await supabaseAdmin.from("prds").update({ google_doc_url: url }).eq("id", data.prdId);
+    return { url };
+  });
+
+const SlackSchema = z.object({
+  prdId: z.string().uuid(),
+  channel: z.string().min(1).max(100).default("general"),
+});
+
+export const pushToSlack = createServerFn({ method: "POST" })
+  .inputValidator((i) => SlackSchema.parse(i))
+  .handler(async ({ data }): Promise<{ ts: string; channel: string }> => {
+    const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
+    const SLACK_API_KEY = process.env.SLACK_API_KEY;
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY missing");
+    if (!SLACK_API_KEY) throw new Error("SLACK_API_KEY missing — connect Slack");
+
+    const row = await loadPRD(data.prdId);
+    const prd = row.prd_json as PRDStruct;
+    const channel = data.channel.replace(/^#/, "");
+
+    const GW = "https://connector-gateway.lovable.dev/slack/api";
+    const headers = {
+      Authorization: `Bearer ${LOVABLE_API_KEY}`,
+      "X-Connection-Api-Key": SLACK_API_KEY,
+      "Content-Type": "application/json",
+    };
+
+    const goalsBullets = prd.goals.slice(0, 3).map((g) => `• ${g}`).join("\n");
+    const links: string[] = [];
+    if (row.notion_url) links.push(`<${row.notion_url}|Notion>`);
+    if (row.google_doc_url) links.push(`<${row.google_doc_url}|Google Doc>`);
+
+    const text = `:rocket: *New PRD:* ${prd.title}\n\n*Problem:* ${prd.problem}\n\n*Top goals:*\n${goalsBullets}${links.length ? `\n\n${links.join(" · ")}` : ""}`;
+
+    const res = await fetch(`${GW}/chat.postMessage`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ channel, text, mrkdwn: true }),
+    });
+    const out = await res.json();
+    if (!out.ok) throw new Error(`Slack post failed: ${out.error ?? JSON.stringify(out)}`);
+    return { ts: out.ts, channel: out.channel };
+  });
+
+export const listPRDs = createServerFn({ method: "GET" }).handler(async () => {
+  const { data, error } = await supabaseAdmin
+    .from("prds")
+    .select("id, title, created_at, notion_url, google_doc_url")
+    .order("created_at", { ascending: false })
+    .limit(50);
+  if (error) throw new Error(error.message);
+  return data ?? [];
+});
+
+/* ---------- Helpers ---------- */
+
+function renderMarkdown(prd: PRDStruct, transcript: string): string {
+  const L: string[] = [];
+  L.push(`# ${prd.title}`, "");
+  L.push(`> Generated by AI Product Ops Stack · ${new Date().toLocaleDateString()}`, "");
+  L.push("## Problem", prd.problem, "");
+  L.push("## Target Users", prd.targetUsers, "");
+  L.push("## Goals");
+  prd.goals.forEach((g) => L.push(`- ${g}`));
+  L.push("", "## Non-Goals");
+  prd.nonGoals.forEach((g) => L.push(`- ${g}`));
+  L.push("", "## User Stories");
+  prd.userStories.forEach((us, i) => {
+    L.push(`### Story ${i + 1}`, us.story, "", "**Acceptance Criteria:**");
+    us.acceptanceCriteria.forEach((ac) => L.push(`- ${ac}`));
+    L.push("");
+  });
+  L.push("## Success Metrics");
+  prd.successMetrics.forEach((m) => L.push(`- ${m}`));
+  L.push("", "## Risks");
+  prd.risks.forEach((r) => L.push(`- ${r}`));
+  L.push("", "## Open Questions");
+  prd.openQuestions.forEach((q) => L.push(`- ${q}`));
+  L.push("", "---", "", "## Original Voice Memo / Notes", "```", transcript, "```");
+  return L.join("\n");
+}
+
+function p(text: string) {
+  return {
+    object: "block",
+    type: "paragraph",
+    paragraph: { rich_text: [{ type: "text", text: { content: text.slice(0, 1900) } }] },
+  };
+}
+function h(level: 1 | 2 | 3, text: string) {
+  const key = `heading_${level}` as const;
+  return {
+    object: "block",
+    type: key,
+    [key]: { rich_text: [{ type: "text", text: { content: text.slice(0, 1900) } }] },
+  };
+}
+function bullet(text: string) {
+  return {
+    object: "block",
+    type: "bulleted_list_item",
+    bulleted_list_item: { rich_text: [{ type: "text", text: { content: text.slice(0, 1900) } }] },
+  };
+}
+
+function prdToNotionBlocks(prd: PRDStruct): unknown[] {
+  const b: unknown[] = [];
+  b.push(h(2, "Problem"), p(prd.problem));
+  b.push(h(2, "Target Users"), p(prd.targetUsers));
+  b.push(h(2, "Goals"));
+  prd.goals.forEach((g) => b.push(bullet(g)));
+  b.push(h(2, "Non-Goals"));
+  prd.nonGoals.forEach((g) => b.push(bullet(g)));
+  b.push(h(2, "User Stories"));
+  prd.userStories.forEach((us, i) => {
+    b.push(h(3, `Story ${i + 1}`), p(us.story), p("Acceptance Criteria:"));
+    us.acceptanceCriteria.forEach((ac) => b.push(bullet(ac)));
+  });
+  b.push(h(2, "Success Metrics"));
+  prd.successMetrics.forEach((m) => b.push(bullet(m)));
+  b.push(h(2, "Risks"));
+  prd.risks.forEach((r) => b.push(bullet(r)));
+  b.push(h(2, "Open Questions"));
+  prd.openQuestions.forEach((q) => b.push(bullet(q)));
+  return b;
 }
