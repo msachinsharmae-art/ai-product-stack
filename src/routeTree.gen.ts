@@ -9,12 +9,24 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResearchRouteImport } from './routes/research'
+import { Route as PrototypeRouteImport } from './routes/prototype'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PIdRouteImport } from './routes/p.$id'
 import { Route as ApiPublicPrdRouteImport } from './routes/api/public/prd'
 
+const ResearchRoute = ResearchRouteImport.update({
+  id: '/research',
+  path: '/research',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrototypeRoute = PrototypeRouteImport.update({
+  id: '/prototype',
+  path: '/prototype',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DemoRoute = DemoRouteImport.update({
   id: '/demo',
   path: '/demo',
@@ -45,6 +57,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
+  '/prototype': typeof PrototypeRoute
+  '/research': typeof ResearchRoute
   '/p/$id': typeof PIdRoute
   '/api/public/prd': typeof ApiPublicPrdRoute
 }
@@ -52,6 +66,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
+  '/prototype': typeof PrototypeRoute
+  '/research': typeof ResearchRoute
   '/p/$id': typeof PIdRoute
   '/api/public/prd': typeof ApiPublicPrdRoute
 }
@@ -60,27 +76,67 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
+  '/prototype': typeof PrototypeRoute
+  '/research': typeof ResearchRoute
   '/p/$id': typeof PIdRoute
   '/api/public/prd': typeof ApiPublicPrdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/demo' | '/p/$id' | '/api/public/prd'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/demo'
+    | '/prototype'
+    | '/research'
+    | '/p/$id'
+    | '/api/public/prd'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/demo' | '/p/$id' | '/api/public/prd'
-  id: '__root__' | '/' | '/dashboard' | '/demo' | '/p/$id' | '/api/public/prd'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/demo'
+    | '/prototype'
+    | '/research'
+    | '/p/$id'
+    | '/api/public/prd'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/demo'
+    | '/prototype'
+    | '/research'
+    | '/p/$id'
+    | '/api/public/prd'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   DemoRoute: typeof DemoRoute
+  PrototypeRoute: typeof PrototypeRoute
+  ResearchRoute: typeof ResearchRoute
   PIdRoute: typeof PIdRoute
   ApiPublicPrdRoute: typeof ApiPublicPrdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/research': {
+      id: '/research'
+      path: '/research'
+      fullPath: '/research'
+      preLoaderRoute: typeof ResearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prototype': {
+      id: '/prototype'
+      path: '/prototype'
+      fullPath: '/prototype'
+      preLoaderRoute: typeof PrototypeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/demo': {
       id: '/demo'
       path: '/demo'
@@ -123,6 +179,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   DemoRoute: DemoRoute,
+  PrototypeRoute: PrototypeRoute,
+  ResearchRoute: ResearchRoute,
   PIdRoute: PIdRoute,
   ApiPublicPrdRoute: ApiPublicPrdRoute,
 }

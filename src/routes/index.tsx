@@ -33,16 +33,17 @@ function Landing() {
           </div>
           <nav className="hidden items-center gap-7 text-sm text-white/60 md:flex">
             <a href="#tools" className="transition hover:text-white">Tools</a>
-            <a href="#how" className="transition hover:text-white">How it works</a>
+            <Link to="/demo" className="transition hover:text-white">PRD</Link>
+            <Link to="/research" className="transition hover:text-white">Research</Link>
+            <Link to="/prototype" className="transition hover:text-white">Prototype</Link>
             <a href="#story" className="transition hover:text-white">Story</a>
-            <a href="#contact" className="transition hover:text-white">Contact</a>
           </nav>
-          <a
-            href="#contact"
+          <Link
+            to="/demo"
             className="rounded-full bg-white px-4 py-1.5 text-xs font-semibold text-black transition hover:bg-white/90"
           >
-            Let&apos;s connect
-          </a>
+            Try it →
+          </Link>
         </div>
       </header>
 
@@ -118,37 +119,36 @@ function Landing() {
           <div className="mb-14 max-w-2xl">
             <div className="text-xs font-semibold uppercase tracking-widest text-emerald-400">The Stack</div>
             <h2 className="mt-3 text-4xl font-black tracking-tight md:text-5xl">
-              One workflow. Zero busywork.
+              Three tools. One product brain.
             </h2>
+            <p className="mt-3 text-white/60">From spec to research to prototype — without leaving the browser.</p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-1">
-            {/* PRD Autopilot */}
-            <article className="group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent p-8 transition hover:border-emerald-400/30">
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-medium text-emerald-300">
-                Tool 01
-              </div>
-              <h3 className="text-3xl font-black tracking-tight">PRD Autopilot</h3>
-              <p className="mt-3 text-white/60">
-                Voice memo on a walk → fully structured PRD in Notion + Jira epic in Slack — in under 60 seconds.
-              </p>
-
-              <div className="mt-8 space-y-3 rounded-2xl border border-white/10 bg-black/40 p-5 font-mono text-xs">
-                <Step label="🎙️  Voice note" />
-                <Pipe />
-                <Step label="🔊  Whisper transcribe" />
-                <Pipe />
-                <Step label="🧠  Gemini → PRD template" />
-                <Pipe />
-                <Step label="📝  Notion · Google Docs · Slack · Email" highlight />
-              </div>
-
-              <ul className="mt-6 space-y-2 text-sm text-white/70">
-                <li>• Problem, Users, Goals, Non-goals</li>
-                <li>• User stories with acceptance criteria</li>
-                <li>• Success metrics + risk register</li>
-              </ul>
-            </article>
+          <div className="grid gap-6 md:grid-cols-3">
+            <ToolCard
+              n="01"
+              to="/demo"
+              title="PRD Autopilot"
+              tag="Spec"
+              desc="Voice memo → fully structured PRD in Notion + Slack in under 60 seconds."
+              cta="Open PRD →"
+            />
+            <ToolCard
+              n="02"
+              to="/research"
+              title="Market Research"
+              tag="Research"
+              desc="Topic in. Cited market brief out — competitors, trends, opportunities. Tavily + Gemini."
+              cta="Run research →"
+            />
+            <ToolCard
+              n="03"
+              to="/prototype"
+              title="Prototype Generator"
+              tag="Build"
+              desc="Idea in. Live HTML prototype, React snippet, or wireframe image — your pick."
+              cta="Generate prototype →"
+            />
           </div>
         </div>
       </section>
@@ -285,4 +285,38 @@ function Step({ label, highlight = false }: { label: string; highlight?: boolean
 
 function Pipe() {
   return <div className="ml-4 h-3 w-px bg-white/15" />;
+}
+
+function ToolCard({
+  n,
+  to,
+  title,
+  tag,
+  desc,
+  cta,
+}: {
+  n: string;
+  to: "/demo" | "/research" | "/prototype";
+  title: string;
+  tag: string;
+  desc: string;
+  cta: string;
+}) {
+  return (
+    <Link
+      to={to}
+      className="group relative flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent p-7 transition hover:border-emerald-400/40"
+    >
+      <div className="flex items-center justify-between">
+        <div className="inline-flex items-center gap-2 rounded-full bg-emerald-400/10 px-3 py-1 text-[10px] font-medium uppercase tracking-widest text-emerald-300">
+          {tag} · {n}
+        </div>
+      </div>
+      <h3 className="mt-5 text-2xl font-black tracking-tight">{title}</h3>
+      <p className="mt-3 flex-1 text-sm text-white/60">{desc}</p>
+      <div className="mt-6 text-xs font-bold text-emerald-300 transition group-hover:translate-x-0.5">
+        {cta}
+      </div>
+    </Link>
+  );
 }
