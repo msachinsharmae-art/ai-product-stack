@@ -72,14 +72,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "AI Product Ops Stack" },
+      { name: "description", content: "An AI-powered Product Operations showcase built to demonstrate how modern PM workflows can be automated using LLMs, no-code automation, and collaborative tools." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "AI Product Ops Stack" },
+      { property: "og:description", content: "An AI-powered Product Operations showcase built to demonstrate how modern PM workflows can be automated using LLMs, no-code automation, and collaborative tools." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "AI Product Ops Stack" },
+      { name: "twitter:description", content: "An AI-powered Product Operations showcase built to demonstrate how modern PM workflows can be automated using LLMs, no-code automation, and collaborative tools." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/b57bc51e-e8f6-4405-97cb-d3b369903df6" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/b57bc51e-e8f6-4405-97cb-d3b369903df6" },
     ],
     links: [
       {
