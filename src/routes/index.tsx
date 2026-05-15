@@ -76,13 +76,13 @@ function Landing() {
               to="/demo"
               className="rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 px-6 py-3 text-sm font-bold text-black transition hover:opacity-90"
             >
-              Try the live demo →
+              Try PRD Autopilot →
             </Link>
             <Link
-              to="/dashboard"
-              className="rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/5"
+              to="/radar"
+              className="rounded-full border border-cyan-400/40 bg-cyan-400/10 px-6 py-3 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/20"
             >
-              View dashboard
+              See Competitor Radar →
             </Link>
             <a
               href="#tools"

@@ -9,12 +9,21 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RadarRouteImport } from './routes/radar'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RadarIdRouteImport } from './routes/radar.$id'
 import { Route as PIdRouteImport } from './routes/p.$id'
 import { Route as ApiPublicPrdRouteImport } from './routes/api/public/prd'
+import { Route as ApiPublicCompetitorSignalsRouteImport } from './routes/api/public/competitor-signals'
+import { Route as ApiPublicCompetitorBriefRouteImport } from './routes/api/public/competitor-brief'
 
+const RadarRoute = RadarRouteImport.update({
+  id: '/radar',
+  path: '/radar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DemoRoute = DemoRouteImport.update({
   id: '/demo',
   path: '/demo',
@@ -30,6 +39,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RadarIdRoute = RadarIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => RadarRoute,
+} as any)
 const PIdRoute = PIdRouteImport.update({
   id: '/p/$id',
   path: '/p/$id',
@@ -40,19 +54,39 @@ const ApiPublicPrdRoute = ApiPublicPrdRouteImport.update({
   path: '/api/public/prd',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCompetitorSignalsRoute =
+  ApiPublicCompetitorSignalsRouteImport.update({
+    id: '/api/public/competitor-signals',
+    path: '/api/public/competitor-signals',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicCompetitorBriefRoute =
+  ApiPublicCompetitorBriefRouteImport.update({
+    id: '/api/public/competitor-brief',
+    path: '/api/public/competitor-brief',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
+  '/radar': typeof RadarRouteWithChildren
   '/p/$id': typeof PIdRoute
+  '/radar/$id': typeof RadarIdRoute
+  '/api/public/competitor-brief': typeof ApiPublicCompetitorBriefRoute
+  '/api/public/competitor-signals': typeof ApiPublicCompetitorSignalsRoute
   '/api/public/prd': typeof ApiPublicPrdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
+  '/radar': typeof RadarRouteWithChildren
   '/p/$id': typeof PIdRoute
+  '/radar/$id': typeof RadarIdRoute
+  '/api/public/competitor-brief': typeof ApiPublicCompetitorBriefRoute
+  '/api/public/competitor-signals': typeof ApiPublicCompetitorSignalsRoute
   '/api/public/prd': typeof ApiPublicPrdRoute
 }
 export interface FileRoutesById {
@@ -60,27 +94,69 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
+  '/radar': typeof RadarRouteWithChildren
   '/p/$id': typeof PIdRoute
+  '/radar/$id': typeof RadarIdRoute
+  '/api/public/competitor-brief': typeof ApiPublicCompetitorBriefRoute
+  '/api/public/competitor-signals': typeof ApiPublicCompetitorSignalsRoute
   '/api/public/prd': typeof ApiPublicPrdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/demo' | '/p/$id' | '/api/public/prd'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/demo'
+    | '/radar'
+    | '/p/$id'
+    | '/radar/$id'
+    | '/api/public/competitor-brief'
+    | '/api/public/competitor-signals'
+    | '/api/public/prd'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/demo' | '/p/$id' | '/api/public/prd'
-  id: '__root__' | '/' | '/dashboard' | '/demo' | '/p/$id' | '/api/public/prd'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/demo'
+    | '/radar'
+    | '/p/$id'
+    | '/radar/$id'
+    | '/api/public/competitor-brief'
+    | '/api/public/competitor-signals'
+    | '/api/public/prd'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/demo'
+    | '/radar'
+    | '/p/$id'
+    | '/radar/$id'
+    | '/api/public/competitor-brief'
+    | '/api/public/competitor-signals'
+    | '/api/public/prd'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   DemoRoute: typeof DemoRoute
+  RadarRoute: typeof RadarRouteWithChildren
   PIdRoute: typeof PIdRoute
+  ApiPublicCompetitorBriefRoute: typeof ApiPublicCompetitorBriefRoute
+  ApiPublicCompetitorSignalsRoute: typeof ApiPublicCompetitorSignalsRoute
   ApiPublicPrdRoute: typeof ApiPublicPrdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/radar': {
+      id: '/radar'
+      path: '/radar'
+      fullPath: '/radar'
+      preLoaderRoute: typeof RadarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/demo': {
       id: '/demo'
       path: '/demo'
@@ -102,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/radar/$id': {
+      id: '/radar/$id'
+      path: '/$id'
+      fullPath: '/radar/$id'
+      preLoaderRoute: typeof RadarIdRouteImport
+      parentRoute: typeof RadarRoute
+    }
     '/p/$id': {
       id: '/p/$id'
       path: '/p/$id'
@@ -116,14 +199,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPrdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/competitor-signals': {
+      id: '/api/public/competitor-signals'
+      path: '/api/public/competitor-signals'
+      fullPath: '/api/public/competitor-signals'
+      preLoaderRoute: typeof ApiPublicCompetitorSignalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/competitor-brief': {
+      id: '/api/public/competitor-brief'
+      path: '/api/public/competitor-brief'
+      fullPath: '/api/public/competitor-brief'
+      preLoaderRoute: typeof ApiPublicCompetitorBriefRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
+
+interface RadarRouteChildren {
+  RadarIdRoute: typeof RadarIdRoute
+}
+
+const RadarRouteChildren: RadarRouteChildren = {
+  RadarIdRoute: RadarIdRoute,
+}
+
+const RadarRouteWithChildren = RadarRoute._addFileChildren(RadarRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   DemoRoute: DemoRoute,
+  RadarRoute: RadarRouteWithChildren,
   PIdRoute: PIdRoute,
+  ApiPublicCompetitorBriefRoute: ApiPublicCompetitorBriefRoute,
+  ApiPublicCompetitorSignalsRoute: ApiPublicCompetitorSignalsRoute,
   ApiPublicPrdRoute: ApiPublicPrdRoute,
 }
 export const routeTree = rootRouteImport

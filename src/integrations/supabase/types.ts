@@ -14,6 +14,110 @@ export type Database = {
   }
   public: {
     Tables: {
+      competitor_briefs: {
+        Row: {
+          brief_date: string
+          brief_json: Json
+          created_at: string
+          id: string
+          markdown: string
+          signal_count: number
+          title: string
+        }
+        Insert: {
+          brief_date?: string
+          brief_json: Json
+          created_at?: string
+          id?: string
+          markdown: string
+          signal_count?: number
+          title: string
+        }
+        Update: {
+          brief_date?: string
+          brief_json?: Json
+          created_at?: string
+          id?: string
+          markdown?: string
+          signal_count?: number
+          title?: string
+        }
+        Relationships: []
+      }
+      competitor_signals: {
+        Row: {
+          competitor_id: string | null
+          competitor_name: string
+          content: string | null
+          created_at: string
+          id: string
+          published_at: string | null
+          source_type: string
+          title: string
+          url: string | null
+        }
+        Insert: {
+          competitor_id?: string | null
+          competitor_name: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          published_at?: string | null
+          source_type: string
+          title: string
+          url?: string | null
+        }
+        Update: {
+          competitor_id?: string | null
+          competitor_name?: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          published_at?: string | null
+          source_type?: string
+          title?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitor_signals_competitor_id_fkey"
+            columns: ["competitor_id"]
+            isOneToOne: false
+            referencedRelation: "competitors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      competitors: {
+        Row: {
+          active: boolean
+          created_at: string
+          domain: string | null
+          id: string
+          name: string
+          topic: string | null
+          twitter_handle: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          domain?: string | null
+          id?: string
+          name: string
+          topic?: string | null
+          twitter_handle?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          domain?: string | null
+          id?: string
+          name?: string
+          topic?: string | null
+          twitter_handle?: string | null
+        }
+        Relationships: []
+      }
       prds: {
         Row: {
           created_at: string
