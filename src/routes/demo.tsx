@@ -6,6 +6,7 @@ import {
   pushToNotion,
   pushToGoogleDocs,
   pushToSlack,
+  emailPRD,
   type PRDResult,
 } from "@/lib/prd.functions";
 
@@ -463,17 +464,21 @@ type DestState = {
   notion: { status: "idle" | "loading" | "done" | "error"; url?: string; error?: string };
   gdocs: { status: "idle" | "loading" | "done" | "error"; url?: string; error?: string };
   slack: { status: "idle" | "loading" | "done" | "error"; error?: string };
+  email: { status: "idle" | "loading" | "done" | "error"; error?: string };
 };
 
 function Destinations({ prdId }: { prdId: string }) {
   const notionFn = useServerFn(pushToNotion);
   const gdocsFn = useServerFn(pushToGoogleDocs);
   const slackFn = useServerFn(pushToSlack);
+  const emailFn = useServerFn(emailPRD);
   const [channel, setChannel] = useState("general");
+  const [email, setEmail] = useState("");
   const [s, setS] = useState<DestState>({
     notion: { status: "idle" },
     gdocs: { status: "idle" },
     slack: { status: "idle" },
+    email: { status: "idle" },
   });
 
   const runNotion = async () => {
@@ -503,6 +508,15 @@ function Destinations({ prdId }: { prdId: string }) {
       setS((p) => ({ ...p, slack: { status: "error", error: e instanceof Error ? e.message : "Failed" } }));
     }
   };
+  const runEmail = async () => {
+    setS((p) => ({ ...p, email: { status: "loading" } }));
+    try {
+      await emailFn({ data: { prdId, to: email } });
+      setS((p) => ({ ...p, email: { status: "done" } }));
+    } catch (e) {
+      setS((p) => ({ ...p, email: { status: "error", error: e instanceof Error ? e.message : "Failed" } }));
+    }
+  };
 
   return (
     <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-emerald-500/5 to-cyan-500/5 p-6">
@@ -513,7 +527,7 @@ function Destinations({ prdId }: { prdId: string }) {
         One click → Notion page, Google Doc, and Slack notification.
       </p>
 
-      <div className="mt-5 grid gap-3 md:grid-cols-3">
+      <div className="mt-5 grid gap-3 md:grid-cols-2">
         <DestCard
           label="Notion"
           icon="📝"
@@ -555,6 +569,33 @@ function Destinations({ prdId }: { prdId: string }) {
           </button>
           {s.slack.status === "error" && (
             <p className="mt-2 text-[11px] text-red-300">{s.slack.error}</p>
+          )}
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+          <div className="flex items-center gap-2 text-sm font-bold">
+            <span>✉️</span> Email digest
+          </div>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@company.com"
+            className="mt-2 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs placeholder:text-white/30 focus:border-emerald-400/50 focus:outline-none"
+            disabled={s.email.status === "loading"}
+          />
+          <button
+            onClick={runEmail}
+            disabled={s.email.status === "loading" || !email.includes("@")}
+            className="mt-2 w-full rounded-full bg-white px-3 py-1.5 text-xs font-bold text-black transition hover:bg-white/90 disabled:opacity-40"
+          >
+            {s.email.status === "loading"
+              ? "Sending…"
+              : s.email.status === "done"
+              ? "✓ Sent"
+              : "Email this PRD"}
+          </button>
+          {s.email.status === "error" && (
+            <p className="mt-2 text-[11px] text-red-300">{s.email.error}</p>
           )}
         </div>
       </div>
