@@ -82,7 +82,7 @@ function PrototypePage() {
           <textarea
             value={idea}
             onChange={(e) => setIdea(e.target.value)}
-            placeholder='e.g. "A dashboard for SDRs showing their pipeline, today\'s tasks, and AI-suggested follow-ups"'
+            placeholder={`e.g. "A dashboard for SDRs showing their pipeline, today's tasks, and AI-suggested follow-ups"`}
             rows={4}
             maxLength={2000}
             className="w-full rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-base outline-none placeholder:text-white/30 focus:border-emerald-400/50"
