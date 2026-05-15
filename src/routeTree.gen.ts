@@ -14,6 +14,8 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PIdRouteImport } from './routes/p.$id'
 import { Route as ApiPublicPrdRouteImport } from './routes/api/public/prd'
+import { Route as ApiPublicCompetitorSignalsRouteImport } from './routes/api/public/competitor-signals'
+import { Route as ApiPublicCompetitorBriefRouteImport } from './routes/api/public/competitor-brief'
 
 const DemoRoute = DemoRouteImport.update({
   id: '/demo',
@@ -40,12 +42,26 @@ const ApiPublicPrdRoute = ApiPublicPrdRouteImport.update({
   path: '/api/public/prd',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCompetitorSignalsRoute =
+  ApiPublicCompetitorSignalsRouteImport.update({
+    id: '/api/public/competitor-signals',
+    path: '/api/public/competitor-signals',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicCompetitorBriefRoute =
+  ApiPublicCompetitorBriefRouteImport.update({
+    id: '/api/public/competitor-brief',
+    path: '/api/public/competitor-brief',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
   '/p/$id': typeof PIdRoute
+  '/api/public/competitor-brief': typeof ApiPublicCompetitorBriefRoute
+  '/api/public/competitor-signals': typeof ApiPublicCompetitorSignalsRoute
   '/api/public/prd': typeof ApiPublicPrdRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +69,8 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
   '/p/$id': typeof PIdRoute
+  '/api/public/competitor-brief': typeof ApiPublicCompetitorBriefRoute
+  '/api/public/competitor-signals': typeof ApiPublicCompetitorSignalsRoute
   '/api/public/prd': typeof ApiPublicPrdRoute
 }
 export interface FileRoutesById {
@@ -61,14 +79,38 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
   '/p/$id': typeof PIdRoute
+  '/api/public/competitor-brief': typeof ApiPublicCompetitorBriefRoute
+  '/api/public/competitor-signals': typeof ApiPublicCompetitorSignalsRoute
   '/api/public/prd': typeof ApiPublicPrdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/demo' | '/p/$id' | '/api/public/prd'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/demo'
+    | '/p/$id'
+    | '/api/public/competitor-brief'
+    | '/api/public/competitor-signals'
+    | '/api/public/prd'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/demo' | '/p/$id' | '/api/public/prd'
-  id: '__root__' | '/' | '/dashboard' | '/demo' | '/p/$id' | '/api/public/prd'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/demo'
+    | '/p/$id'
+    | '/api/public/competitor-brief'
+    | '/api/public/competitor-signals'
+    | '/api/public/prd'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/demo'
+    | '/p/$id'
+    | '/api/public/competitor-brief'
+    | '/api/public/competitor-signals'
+    | '/api/public/prd'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -76,6 +118,8 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   DemoRoute: typeof DemoRoute
   PIdRoute: typeof PIdRoute
+  ApiPublicCompetitorBriefRoute: typeof ApiPublicCompetitorBriefRoute
+  ApiPublicCompetitorSignalsRoute: typeof ApiPublicCompetitorSignalsRoute
   ApiPublicPrdRoute: typeof ApiPublicPrdRoute
 }
 
@@ -116,6 +160,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPrdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/competitor-signals': {
+      id: '/api/public/competitor-signals'
+      path: '/api/public/competitor-signals'
+      fullPath: '/api/public/competitor-signals'
+      preLoaderRoute: typeof ApiPublicCompetitorSignalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/competitor-brief': {
+      id: '/api/public/competitor-brief'
+      path: '/api/public/competitor-brief'
+      fullPath: '/api/public/competitor-brief'
+      preLoaderRoute: typeof ApiPublicCompetitorBriefRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -124,8 +182,20 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   DemoRoute: DemoRoute,
   PIdRoute: PIdRoute,
+  ApiPublicCompetitorBriefRoute: ApiPublicCompetitorBriefRoute,
+  ApiPublicCompetitorSignalsRoute: ApiPublicCompetitorSignalsRoute,
   ApiPublicPrdRoute: ApiPublicPrdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
