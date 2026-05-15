@@ -36,8 +36,12 @@ function RadarPage() {
     setBusy(true);
     setErr(null);
     try {
-      await generate();
-      router.invalidate();
+      const res = await generate();
+      if (!res.ok) {
+        setErr(res.reason);
+      } else {
+        router.invalidate();
+      }
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Failed");
     } finally {
