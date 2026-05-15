@@ -30,7 +30,7 @@ export const generateBrief = createServerFn({ method: "POST" }).handler(async ()
     .limit(200);
   if (error) throw new Error(`Failed to load signals: ${error.message}`);
   if (!signals || signals.length === 0) {
-    throw new Error("No signals from the last 24 hours. Ingest some via /api/public/competitor-signals first.");
+    return { ok: false as const, reason: "No signals from the last 24 hours. POST some to /api/public/competitor-signals first." };
   }
 
   const signalText = signals
