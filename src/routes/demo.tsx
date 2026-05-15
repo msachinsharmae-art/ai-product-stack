@@ -471,11 +471,14 @@ function Destinations({ prdId }: { prdId: string }) {
   const notionFn = useServerFn(pushToNotion);
   const gdocsFn = useServerFn(pushToGoogleDocs);
   const slackFn = useServerFn(pushToSlack);
+  const emailFn = useServerFn(emailPRD);
   const [channel, setChannel] = useState("general");
+  const [email, setEmail] = useState("");
   const [s, setS] = useState<DestState>({
     notion: { status: "idle" },
     gdocs: { status: "idle" },
     slack: { status: "idle" },
+    email: { status: "idle" },
   });
 
   const runNotion = async () => {
