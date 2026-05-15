@@ -1,7 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useRef, useState } from "react";
-import { generatePRD, type PRDResult } from "@/lib/prd.functions";
+import {
+  generatePRD,
+  pushToNotion,
+  pushToGoogleDocs,
+  pushToSlack,
+  type PRDResult,
+} from "@/lib/prd.functions";
 
 export const Route = createFileRoute("/demo")({
   head: () => ({
