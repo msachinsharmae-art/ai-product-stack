@@ -78,12 +78,28 @@ function Landing() {
             >
               Try the live demo →
             </Link>
+            <Link
+              to="/dashboard"
+              className="rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/5"
+            >
+              View dashboard
+            </Link>
             <a
               href="#tools"
-              className="rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/5"
+              className="rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-white/80 transition hover:bg-white/5"
             >
               See the stack
             </a>
+          </div>
+
+          {/* Destinations row */}
+          <div className="mt-8 flex flex-wrap items-center gap-2 text-xs text-white/50">
+            <span className="uppercase tracking-widest text-white/40">Ships to</span>
+            {["Notion", "Google Docs", "Slack", "Email", "Telegram", "Share link"].map((d) => (
+              <span key={d} className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-white/70">
+                {d}
+              </span>
+            ))}
           </div>
 
           {/* Stats strip */}
