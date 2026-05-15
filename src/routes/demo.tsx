@@ -508,6 +508,15 @@ function Destinations({ prdId }: { prdId: string }) {
       setS((p) => ({ ...p, slack: { status: "error", error: e instanceof Error ? e.message : "Failed" } }));
     }
   };
+  const runEmail = async () => {
+    setS((p) => ({ ...p, email: { status: "loading" } }));
+    try {
+      await emailFn({ data: { prdId, to: email } });
+      setS((p) => ({ ...p, email: { status: "done" } }));
+    } catch (e) {
+      setS((p) => ({ ...p, email: { status: "error", error: e instanceof Error ? e.message : "Failed" } }));
+    }
+  };
 
   return (
     <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-emerald-500/5 to-cyan-500/5 p-6">
