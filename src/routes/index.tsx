@@ -33,16 +33,17 @@ function Landing() {
           </div>
           <nav className="hidden items-center gap-7 text-sm text-white/60 md:flex">
             <a href="#tools" className="transition hover:text-white">Tools</a>
-            <a href="#how" className="transition hover:text-white">How it works</a>
+            <Link to="/demo" className="transition hover:text-white">PRD</Link>
+            <Link to="/research" className="transition hover:text-white">Research</Link>
+            <Link to="/prototype" className="transition hover:text-white">Prototype</Link>
             <a href="#story" className="transition hover:text-white">Story</a>
-            <a href="#contact" className="transition hover:text-white">Contact</a>
           </nav>
-          <a
-            href="#contact"
+          <Link
+            to="/demo"
             className="rounded-full bg-white px-4 py-1.5 text-xs font-semibold text-black transition hover:bg-white/90"
           >
-            Let&apos;s connect
-          </a>
+            Try it →
+          </Link>
         </div>
       </header>
 
