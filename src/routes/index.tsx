@@ -3,16 +3,16 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "AI Product Ops Stack — PRD Autopilot & Competitor Radar by Sachin Sharma" },
+      { title: "PRD Autopilot — AI Product Ops by Sachin Sharma" },
       {
         name: "description",
         content:
-          "An open AI co-pilot for Product Managers and Business Analysts. Voice memos become PRDs. Competitors get tracked while you sleep. Built on n8n + Gemini.",
+          "An open AI co-pilot for Product Managers. Voice memos become structured PRDs in under 60 seconds. Built on n8n + Gemini.",
       },
-      { property: "og:title", content: "AI Product Ops Stack — by Sachin Sharma" },
+      { property: "og:title", content: "PRD Autopilot — by Sachin Sharma" },
       {
         property: "og:description",
-        content: "Voice memo → PRD. Daily competitor intel. An open AI co-pilot for PM, APM & BA roles.",
+        content: "Voice memo → PRD in 60 seconds. An open AI co-pilot for PM, APM & BA roles.",
       },
     ],
   }),
@@ -67,8 +67,7 @@ function Landing() {
 
           <p className="mt-6 max-w-2xl text-lg text-white/60 md:text-xl">
             I ramble into my phone for 90 seconds. n8n + Gemini turns it into a 4-page PRD,
-            user stories, acceptance criteria, and a Jira-ready epic. While I sleep, it briefs me on
-            every competitor move.
+            user stories, acceptance criteria, and a Jira-ready epic.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -78,17 +77,11 @@ function Landing() {
             >
               Try PRD Autopilot →
             </Link>
-            <Link
-              to="/radar"
-              className="rounded-full border border-cyan-400/40 bg-cyan-400/10 px-6 py-3 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/20"
-            >
-              See Competitor Radar →
-            </Link>
             <a
               href="#tools"
               className="rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-white/80 transition hover:bg-white/5"
             >
-              See the stack
+              See how it works
             </a>
           </div>
 
@@ -125,11 +118,11 @@ function Landing() {
           <div className="mb-14 max-w-2xl">
             <div className="text-xs font-semibold uppercase tracking-widest text-emerald-400">The Stack</div>
             <h2 className="mt-3 text-4xl font-black tracking-tight md:text-5xl">
-              Two workflows. Zero busywork.
+              One workflow. Zero busywork.
             </h2>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-1">
             {/* PRD Autopilot */}
             <article className="group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent p-8 transition hover:border-emerald-400/30">
               <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-medium text-emerald-300">
@@ -154,33 +147,6 @@ function Landing() {
                 <li>• Problem, Users, Goals, Non-goals</li>
                 <li>• User stories with acceptance criteria</li>
                 <li>• Success metrics + risk register</li>
-              </ul>
-            </article>
-
-            {/* Competitor Radar */}
-            <article className="group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent p-8 transition hover:border-cyan-400/30">
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-cyan-400/10 px-3 py-1 text-xs font-medium text-cyan-300">
-                Tool 02
-              </div>
-              <h3 className="text-3xl font-black tracking-tight">Competitor Radar</h3>
-              <p className="mt-3 text-white/60">
-                Every morning at 8 AM: a 1-page brief on what your top 5 competitors shipped, tweeted, and got reviewed for.
-              </p>
-
-              <div className="mt-8 space-y-3 rounded-2xl border border-white/10 bg-black/40 p-5 font-mono text-xs">
-                <Step label="⏰  Cron @ 7:55 AM" />
-                <Pipe />
-                <Step label="🌐  Scrape changelogs · G2 · Twitter" />
-                <Pipe />
-                <Step label="🧠  Gemini cluster + 'so what?'" />
-                <Pipe />
-                <Step label="📧  Email + Slack digest" highlight />
-              </div>
-
-              <ul className="mt-6 space-y-2 text-sm text-white/70">
-                <li>• Feature launches & pricing changes</li>
-                <li>• Negative review themes (your opportunity)</li>
-                <li>• Hiring signals = strategic moves</li>
               </ul>
             </article>
           </div>
