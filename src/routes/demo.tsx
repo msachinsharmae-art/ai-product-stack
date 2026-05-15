@@ -303,12 +303,31 @@ function DemoPage() {
           <div className="mt-12 space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-black tracking-tight">✨ Your PRD is ready</h2>
-              <button
-                onClick={downloadMarkdown}
-                className="rounded-full bg-emerald-400 px-4 py-2 text-xs font-bold text-black transition hover:bg-emerald-300"
-              >
-                ↓ Download .md
-              </button>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => {
+                    const url = `${window.location.origin}/p/${result.id}`;
+                    navigator.clipboard.writeText(url);
+                  }}
+                  className="rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold hover:bg-white/10"
+                >
+                  🔗 Copy share link
+                </button>
+                <a
+                  href={`/p/${result.id}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold hover:bg-white/10"
+                >
+                  ↗ Open share page
+                </a>
+                <button
+                  onClick={downloadMarkdown}
+                  className="rounded-full bg-emerald-400 px-4 py-2 text-xs font-bold text-black transition hover:bg-emerald-300"
+                >
+                  ↓ Download .md
+                </button>
+              </div>
             </div>
 
             <Destinations prdId={result.id} />
