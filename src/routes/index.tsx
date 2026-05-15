@@ -147,7 +147,7 @@ function Landing() {
                 <Pipe />
                 <Step label="🧠  Gemini → PRD template" />
                 <Pipe />
-                <Step label="📝  Notion + Jira + Slack" highlight />
+                <Step label="📝  Notion · Google Docs · Slack · Email" highlight />
               </div>
 
               <ul className="mt-6 space-y-2 text-sm text-white/70">
