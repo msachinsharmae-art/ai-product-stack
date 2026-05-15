@@ -13,6 +13,7 @@ import { Route as DemoRouteImport } from './routes/demo'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PIdRouteImport } from './routes/p.$id'
+import { Route as ApiPublicPrdRouteImport } from './routes/api/public/prd'
 
 const DemoRoute = DemoRouteImport.update({
   id: '/demo',
@@ -34,18 +35,25 @@ const PIdRoute = PIdRouteImport.update({
   path: '/p/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicPrdRoute = ApiPublicPrdRouteImport.update({
+  id: '/api/public/prd',
+  path: '/api/public/prd',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
   '/p/$id': typeof PIdRoute
+  '/api/public/prd': typeof ApiPublicPrdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
   '/p/$id': typeof PIdRoute
+  '/api/public/prd': typeof ApiPublicPrdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +61,14 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
   '/p/$id': typeof PIdRoute
+  '/api/public/prd': typeof ApiPublicPrdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/demo' | '/p/$id'
+  fullPaths: '/' | '/dashboard' | '/demo' | '/p/$id' | '/api/public/prd'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/demo' | '/p/$id'
-  id: '__root__' | '/' | '/dashboard' | '/demo' | '/p/$id'
+  to: '/' | '/dashboard' | '/demo' | '/p/$id' | '/api/public/prd'
+  id: '__root__' | '/' | '/dashboard' | '/demo' | '/p/$id' | '/api/public/prd'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,6 +76,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   DemoRoute: typeof DemoRoute
   PIdRoute: typeof PIdRoute
+  ApiPublicPrdRoute: typeof ApiPublicPrdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -99,6 +109,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/prd': {
+      id: '/api/public/prd'
+      path: '/api/public/prd'
+      fullPath: '/api/public/prd'
+      preLoaderRoute: typeof ApiPublicPrdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -107,6 +124,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   DemoRoute: DemoRoute,
   PIdRoute: PIdRoute,
+  ApiPublicPrdRoute: ApiPublicPrdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
