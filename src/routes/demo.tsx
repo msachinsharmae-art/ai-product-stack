@@ -464,6 +464,7 @@ type DestState = {
   notion: { status: "idle" | "loading" | "done" | "error"; url?: string; error?: string };
   gdocs: { status: "idle" | "loading" | "done" | "error"; url?: string; error?: string };
   slack: { status: "idle" | "loading" | "done" | "error"; error?: string };
+  email: { status: "idle" | "loading" | "done" | "error"; error?: string };
 };
 
 function Destinations({ prdId }: { prdId: string }) {
