@@ -120,7 +120,7 @@ function RadarPage() {
               <p className="text-sm text-white/50">No signals ingested yet.</p>
             ) : (
               <ul className="space-y-2">
-                {signals.map((s) => (
+                {signals.map((s: typeof signals[number]) => (
                   <li key={s.id} className="rounded-xl border border-white/10 bg-black/30 p-3 text-sm">
                     <div className="flex items-center gap-2 text-xs text-white/50">
                       <span className="rounded bg-white/10 px-2 py-0.5 font-mono">{s.source_type}</span>
@@ -150,7 +150,7 @@ function RadarPage() {
               <p className="text-sm text-white/50">No briefs yet.</p>
             ) : (
               <ul className="space-y-2">
-                {briefs.map((b) => (
+                {briefs.map((b: typeof briefs[number]) => (
                   <li key={b.id} className="rounded-xl border border-white/10 bg-black/30 p-3 text-sm">
                     <Link
                       to="/radar/$id"
