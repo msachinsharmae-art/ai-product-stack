@@ -15,6 +15,9 @@ export const Route = createFileRoute("/api/public/competitor-brief")({
 
         try {
           const result = await generateBrief();
+          if (!result.ok) {
+            return Response.json({ error: result.reason }, { status: 400 });
+          }
           const origin = new URL(request.url).origin;
           return Response.json({
             id: result.id,
