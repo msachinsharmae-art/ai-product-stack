@@ -439,3 +439,154 @@ function blobToBase64(blob: Blob): Promise<string> {
     reader.readAsDataURL(blob);
   });
 }
+
+type DestState = {
+  notion: { status: "idle" | "loading" | "done" | "error"; url?: string; error?: string };
+  gdocs: { status: "idle" | "loading" | "done" | "error"; url?: string; error?: string };
+  slack: { status: "idle" | "loading" | "done" | "error"; error?: string };
+};
+
+function Destinations({ prdId }: { prdId: string }) {
+  const notionFn = useServerFn(pushToNotion);
+  const gdocsFn = useServerFn(pushToGoogleDocs);
+  const slackFn = useServerFn(pushToSlack);
+  const [channel, setChannel] = useState("general");
+  const [s, setS] = useState<DestState>({
+    notion: { status: "idle" },
+    gdocs: { status: "idle" },
+    slack: { status: "idle" },
+  });
+
+  const runNotion = async () => {
+    setS((p) => ({ ...p, notion: { status: "loading" } }));
+    try {
+      const r = await notionFn({ data: { prdId } });
+      setS((p) => ({ ...p, notion: { status: "done", url: r.url } }));
+    } catch (e) {
+      setS((p) => ({ ...p, notion: { status: "error", error: e instanceof Error ? e.message : "Failed" } }));
+    }
+  };
+  const runGdocs = async () => {
+    setS((p) => ({ ...p, gdocs: { status: "loading" } }));
+    try {
+      const r = await gdocsFn({ data: { prdId } });
+      setS((p) => ({ ...p, gdocs: { status: "done", url: r.url } }));
+    } catch (e) {
+      setS((p) => ({ ...p, gdocs: { status: "error", error: e instanceof Error ? e.message : "Failed" } }));
+    }
+  };
+  const runSlack = async () => {
+    setS((p) => ({ ...p, slack: { status: "loading" } }));
+    try {
+      await slackFn({ data: { prdId, channel } });
+      setS((p) => ({ ...p, slack: { status: "done" } }));
+    } catch (e) {
+      setS((p) => ({ ...p, slack: { status: "error", error: e instanceof Error ? e.message : "Failed" } }));
+    }
+  };
+
+  return (
+    <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-emerald-500/5 to-cyan-500/5 p-6">
+      <div className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
+        Ship it everywhere
+      </div>
+      <p className="mt-1 text-sm text-white/60">
+        One click → Notion page, Google Doc, and Slack notification.
+      </p>
+
+      <div className="mt-5 grid gap-3 md:grid-cols-3">
+        <DestCard
+          label="Notion"
+          icon="📝"
+          state={s.notion}
+          onClick={runNotion}
+          ctaIdle="Push to Notion"
+          ctaDone="Open in Notion"
+        />
+        <DestCard
+          label="Google Docs"
+          icon="📄"
+          state={s.gdocs}
+          onClick={runGdocs}
+          ctaIdle="Create Google Doc"
+          ctaDone="Open Google Doc"
+        />
+        <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+          <div className="flex items-center gap-2 text-sm font-bold">
+            <span>💬</span> Slack
+          </div>
+          <input
+            type="text"
+            value={channel}
+            onChange={(e) => setChannel(e.target.value)}
+            placeholder="channel"
+            className="mt-2 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs placeholder:text-white/30 focus:border-emerald-400/50 focus:outline-none"
+            disabled={s.slack.status === "loading"}
+          />
+          <button
+            onClick={runSlack}
+            disabled={s.slack.status === "loading" || !channel.trim()}
+            className="mt-2 w-full rounded-full bg-white px-3 py-1.5 text-xs font-bold text-black transition hover:bg-white/90 disabled:opacity-40"
+          >
+            {s.slack.status === "loading"
+              ? "Sending…"
+              : s.slack.status === "done"
+              ? `✓ Sent to #${channel}`
+              : "Send to Slack"}
+          </button>
+          {s.slack.status === "error" && (
+            <p className="mt-2 text-[11px] text-red-300">{s.slack.error}</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DestCard({
+  label,
+  icon,
+  state,
+  onClick,
+  ctaIdle,
+  ctaDone,
+}: {
+  label: string;
+  icon: string;
+  state: { status: "idle" | "loading" | "done" | "error"; url?: string; error?: string };
+  onClick: () => void;
+  ctaIdle: string;
+  ctaDone: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+      <div className="flex items-center gap-2 text-sm font-bold">
+        <span>{icon}</span> {label}
+      </div>
+      <p className="mt-2 h-8 text-[11px] text-white/40">
+        {state.status === "done" ? "Successfully created." : "Sync this PRD."}
+      </p>
+      {state.status === "done" && state.url ? (
+        <a
+          href={state.url}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-1 block w-full rounded-full bg-emerald-400 px-3 py-1.5 text-center text-xs font-bold text-black transition hover:bg-emerald-300"
+        >
+          ↗ {ctaDone}
+        </a>
+      ) : (
+        <button
+          onClick={onClick}
+          disabled={state.status === "loading"}
+          className="mt-1 w-full rounded-full bg-white px-3 py-1.5 text-xs font-bold text-black transition hover:bg-white/90 disabled:opacity-40"
+        >
+          {state.status === "loading" ? "Working…" : ctaIdle}
+        </button>
+      )}
+      {state.status === "error" && (
+        <p className="mt-2 text-[11px] text-red-300">{state.error}</p>
+      )}
+    </div>
+  );
+}
