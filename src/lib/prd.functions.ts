@@ -311,6 +311,22 @@ export const listPRDs = createServerFn({ method: "GET" }).handler(async () => {
   return data ?? [];
 });
 
+export const getPRD = createServerFn({ method: "GET" })
+  .inputValidator((i) => z.object({ id: z.string().uuid() }).parse(i))
+  .handler(async ({ data }) => {
+    const row = await loadPRD(data.id);
+    return {
+      id: row.id as string,
+      title: row.title as string,
+      transcript: row.transcript as string,
+      prd: row.prd_json as PRDStruct,
+      markdown: row.markdown as string,
+      notion_url: (row.notion_url as string | null) ?? null,
+      google_doc_url: (row.google_doc_url as string | null) ?? null,
+      created_at: row.created_at as string,
+    };
+  });
+
 /* ---------- Helpers ---------- */
 
 function renderMarkdown(prd: PRDStruct, transcript: string): string {
