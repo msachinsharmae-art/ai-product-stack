@@ -157,9 +157,14 @@ function DemoPage() {
             </div>
             <span className="text-sm font-semibold">AI Product Ops Stack</span>
           </Link>
-          <Link to="/" className="text-sm text-white/60 hover:text-white">
-            ← Back
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link to="/dashboard" className="text-sm text-white/60 hover:text-white">
+              History
+            </Link>
+            <Link to="/" className="text-sm text-white/60 hover:text-white">
+              ← Back
+            </Link>
+          </div>
         </div>
       </header>
 
