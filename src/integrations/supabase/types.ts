@@ -14,7 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      prds: {
+        Row: {
+          created_at: string
+          google_doc_url: string | null
+          id: string
+          markdown: string
+          notion_url: string | null
+          prd_json: Json
+          title: string
+          transcript: string
+        }
+        Insert: {
+          created_at?: string
+          google_doc_url?: string | null
+          id?: string
+          markdown: string
+          notion_url?: string | null
+          prd_json: Json
+          title: string
+          transcript: string
+        }
+        Update: {
+          created_at?: string
+          google_doc_url?: string | null
+          id?: string
+          markdown?: string
+          notion_url?: string | null
+          prd_json?: Json
+          title?: string
+          transcript?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
