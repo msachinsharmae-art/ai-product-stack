@@ -286,3 +286,37 @@ function Step({ label, highlight = false }: { label: string; highlight?: boolean
 function Pipe() {
   return <div className="ml-4 h-3 w-px bg-white/15" />;
 }
+
+function ToolCard({
+  n,
+  to,
+  title,
+  tag,
+  desc,
+  cta,
+}: {
+  n: string;
+  to: "/demo" | "/research" | "/prototype";
+  title: string;
+  tag: string;
+  desc: string;
+  cta: string;
+}) {
+  return (
+    <Link
+      to={to}
+      className="group relative flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent p-7 transition hover:border-emerald-400/40"
+    >
+      <div className="flex items-center justify-between">
+        <div className="inline-flex items-center gap-2 rounded-full bg-emerald-400/10 px-3 py-1 text-[10px] font-medium uppercase tracking-widest text-emerald-300">
+          {tag} · {n}
+        </div>
+      </div>
+      <h3 className="mt-5 text-2xl font-black tracking-tight">{title}</h3>
+      <p className="mt-3 flex-1 text-sm text-white/60">{desc}</p>
+      <div className="mt-6 text-xs font-bold text-emerald-300 transition group-hover:translate-x-0.5">
+        {cta}
+      </div>
+    </Link>
+  );
+}
