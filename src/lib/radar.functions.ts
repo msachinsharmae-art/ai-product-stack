@@ -164,7 +164,7 @@ export const generateBrief = createServerFn({ method: "POST" }).handler(async ()
       brief_json: brief as never,
       signal_count: signals.length,
     })
-    .select("id, share_token")
+    .select("id, share_token" as "id")
     .single();
   if (insertErr) throw new Error(`Failed to save brief: ${insertErr.message}`);
 
