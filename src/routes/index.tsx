@@ -72,17 +72,17 @@ function Landing() {
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <a
-              href="#tools"
+            <Link
+              to="/demo"
               className="rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 px-6 py-3 text-sm font-bold text-black transition hover:opacity-90"
             >
-              See the stack →
-            </a>
+              Try the live demo →
+            </Link>
             <a
-              href="#contact"
+              href="#tools"
               className="rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/5"
             >
-              Connect on LinkedIn
+              See the stack
             </a>
           </div>
 
