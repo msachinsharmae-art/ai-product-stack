@@ -1,7 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { createHash } from "crypto";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { supabaseAdmin as _admin } from "@/integrations/supabase/client.server";
+// Cast: dedup_key column was added by migration but types haven't regenerated yet.
+const supabaseAdmin = _admin as unknown as {
+  from: (t: string) => {
+    select: (cols: string) => { in: (col: string, vals: string[]) => Promise<{ data: Array<Record<string, unknown>> | null; error: { message: string } | null }> };
+    insert: (rows: Array<Record<string, unknown>>) => { select: (cols: string) => Promise<{ data: Array<Record<string, unknown>> | null; error: { message: string } | null }> };
+  };
+};
 
 const SignalSchema = z.object({
   competitor_name: z.string().min(1).max(200),
