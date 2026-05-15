@@ -58,7 +58,8 @@ export const generateResearch = createServerFn({ method: "POST" })
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
+        model: "google/gemini-2.5-flash",
+        max_tokens: 4096,
         messages: [
           {
             role: "system",
@@ -94,7 +95,12 @@ Cite sources inline as [n].`,
       throw new Error(`AI gateway error [${aiRes.status}]: ${await aiRes.text()}`);
     }
     const aiData = await aiRes.json();
-    const markdown: string = aiData.choices?.[0]?.message?.content ?? "(no output)";
+    const choice = aiData.choices?.[0];
+    const markdown: string = choice?.message?.content ?? "";
+    if (!markdown.trim()) {
+      console.error("Empty AI response", { finish: choice?.finish_reason, usage: aiData.usage });
+      throw new Error(`AI returned empty content (finish_reason: ${choice?.finish_reason ?? "unknown"}). Try a more specific topic.`);
+    }
 
     return { topic: data.topic, markdown, sources };
   });
