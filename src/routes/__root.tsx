@@ -123,11 +123,11 @@ function RootComponent() {
         </div>
         <footer className="border-t border-border bg-background/50 py-4 text-center text-xs text-muted-foreground">
           <p>
-            Built &amp; owned by <span className="font-semibold text-foreground">Your Name</span> ·
-            A nights &amp; weekends personal project · Made with Lovable
+            Built &amp; owned by <span className="font-semibold text-foreground">Sachin Kumar Sharma</span> ·
+            A weekends personal project · Made with Lovable
           </p>
           <p className="mt-1 opacity-70">
-            © {new Date().getFullYear()} · Independent work, not affiliated with any employer
+            © {new Date().getFullYear()} · Independent work, not affiliated to any IP or any third-party source — all hosted and made purely on Lovable
           </p>
         </footer>
       </div>
