@@ -219,17 +219,19 @@ function Landing() {
 
           <div className="mt-8 space-y-5 text-lg leading-relaxed text-white/70">
             <p>
-              I&apos;m <strong className="text-white">Sachin Kumar Sharma</strong> — software engineer turned aspiring
-              Product Manager. Three years writing code taught me one thing: most PM workflows are
-              broken in ways AI can finally fix.
+              I&apos;m <strong className="text-white">Sachin Kumar Sharma</strong> — Customer Success leader
+              transitioning into Product Management. Years of sitting between customers and product taught me
+              one thing: most PM workflows are broken in ways AI can finally fix.
             </p>
             <p>
-              So instead of waiting for a recruiter callback, I&apos;m building the AI Product Ops Stack
-              in public — open-source, free, and battle-tested on real product problems.
+              I&apos;ve lived the pain on both sides — chasing roadmaps for frustrated customers, translating
+              vague feedback into PRDs nobody reads. So instead of waiting for a recruiter callback,
+              I&apos;m building the AI Product Ops Stack in public — open-source, free, and built on real
+              CS-to-Product problems.
             </p>
             <p>
               If you&apos;re hiring for <strong className="text-white">PM, APM, or Business Analyst</strong> roles
-              and want someone who ships, not just writes Jira tickets — let&apos;s talk.
+              and want someone who already speaks both customer and product — let&apos;s talk.
             </p>
           </div>
         </div>
