@@ -143,7 +143,7 @@ export const generatePRD = createServerFn({ method: "POST" })
       .insert({
         title: prd.title,
         transcript,
-        prd_json: prd as unknown as Record<string, unknown>,
+        prd_json: prd as never,
         markdown,
       })
       .select("id")
