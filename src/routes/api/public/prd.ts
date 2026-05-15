@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { generateAndSavePRD } from "@/lib/prd.functions";
+import { generatePRD } from "@/lib/prd.functions";
 
 const Body = z.object({
   transcript: z.string().min(20).max(20000),
