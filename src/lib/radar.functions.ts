@@ -164,11 +164,20 @@ export const generateBrief = createServerFn({ method: "POST" }).handler(async ()
       brief_json: brief as never,
       signal_count: signals.length,
     })
-    .select("id")
+    .select("id, share_token")
     .single();
   if (insertErr) throw new Error(`Failed to save brief: ${insertErr.message}`);
 
-  return { ok: true as const, id: row.id, title, brief, markdown, signalCount: signals.length };
+  return {
+    ok: true as const,
+    existed: false as const,
+    id: row.id as string,
+    title,
+    brief,
+    markdown,
+    signalCount: signals.length,
+    shareToken: (row as { share_token?: string }).share_token ?? null,
+  };
 });
 
 export const listBriefs = createServerFn({ method: "GET" }).handler(async () => {
