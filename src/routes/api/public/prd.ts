@@ -35,8 +35,8 @@ export const Route = createFileRoute("/api/public/prd")({
         }
 
         try {
-          const result = await generateAndSavePRD({
-            data: { transcript: parsed.data.transcript, title: parsed.data.title },
+          const result = await generatePRD({
+            data: { rawText: parsed.data.transcript, featureHint: parsed.data.title },
           });
           const origin = new URL(request.url).origin;
           return Response.json({
