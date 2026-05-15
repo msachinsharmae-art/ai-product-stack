@@ -311,6 +311,8 @@ function DemoPage() {
               </button>
             </div>
 
+            <Destinations prdId={result.id} />
+
             <PRDView result={result} />
           </div>
         )}
