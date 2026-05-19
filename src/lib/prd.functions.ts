@@ -39,8 +39,7 @@ export const generatePRD = createServerFn({ method: "POST" })
   .inputValidator((input) => InputSchema.parse(input))
   .handler(async ({ data }): Promise<PRDResult> => {
     const GROQ_API_KEY = process.env.GROQ_API_KEY;
-    const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY is not configured");
 
     let transcript = data.rawText?.trim() ?? "";
 
