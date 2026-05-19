@@ -16,9 +16,9 @@ export const generateResearch = createServerFn({ method: "POST" })
   .inputValidator((i) => InputSchema.parse(i))
   .handler(async ({ data }): Promise<ResearchResult> => {
     const TAVILY_API_KEY = process.env.TAVILY_API_KEY;
-    const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
+    const GROQ_API_KEY = process.env.GROQ_API_KEY;
     if (!TAVILY_API_KEY) throw new Error("TAVILY_API_KEY is not configured");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY is not configured");
 
     // 1. Tavily search
     const tavRes = await fetch("https://api.tavily.com/search", {
@@ -50,15 +50,15 @@ export const generateResearch = createServerFn({ method: "POST" })
       .map((s, i) => `[${i + 1}] ${s.title}\n${s.url}\n${s.snippet ?? ""}`)
       .join("\n\n");
 
-    // 2. Synthesize with Gemini
-    const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    // 2. Synthesize with Groq
+    const aiRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${GROQ_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "llama-3.3-70b-versatile",
         max_tokens: 4096,
         messages: [
           {
@@ -90,9 +90,8 @@ Cite sources inline as [n].`,
     });
 
     if (!aiRes.ok) {
-      if (aiRes.status === 429) throw new Error("AI rate limit hit. Try again shortly.");
-      if (aiRes.status === 402) throw new Error("AI credits exhausted. Top up in Workspace → Usage.");
-      throw new Error(`AI gateway error [${aiRes.status}]: ${await aiRes.text()}`);
+      if (aiRes.status === 429) throw new Error("Groq rate limit hit. Try again shortly.");
+      throw new Error(`Groq API error [${aiRes.status}]: ${await aiRes.text()}`);
     }
     const aiData = await aiRes.json();
     const choice = aiData.choices?.[0];

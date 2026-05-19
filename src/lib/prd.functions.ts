@@ -39,13 +39,11 @@ export const generatePRD = createServerFn({ method: "POST" })
   .inputValidator((input) => InputSchema.parse(input))
   .handler(async ({ data }): Promise<PRDResult> => {
     const GROQ_API_KEY = process.env.GROQ_API_KEY;
-    const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY is not configured");
 
     let transcript = data.rawText?.trim() ?? "";
 
     if (data.audioBase64) {
-      if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY is not configured");
       const audioBuffer = Buffer.from(data.audioBase64, "base64");
       const mimeType = data.audioMimeType || "audio/webm";
       const ext = mimeType.includes("mp3") ? "mp3"
@@ -76,14 +74,14 @@ export const generatePRD = createServerFn({ method: "POST" })
 
     const userPrompt = `${data.featureHint ? `Feature context: ${data.featureHint}\n\n` : ""}Voice memo / notes from the PM:\n"""\n${transcript}\n"""\n\nWrite a complete PRD now.`;
 
-    const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const aiRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${GROQ_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
+        model: "llama-3.3-70b-versatile",
         messages: [
           { role: "system", content: PRD_SYSTEM_PROMPT },
           { role: "user", content: userPrompt },
@@ -125,9 +123,8 @@ export const generatePRD = createServerFn({ method: "POST" })
     });
 
     if (!aiRes.ok) {
-      if (aiRes.status === 429) throw new Error("AI rate limit hit. Wait a moment and try again.");
-      if (aiRes.status === 402) throw new Error("AI credits exhausted. Top up in Workspace → Usage.");
-      throw new Error(`AI gateway error [${aiRes.status}]: ${await aiRes.text()}`);
+      if (aiRes.status === 429) throw new Error("Groq rate limit hit. Wait a moment and try again.");
+      throw new Error(`Groq API error [${aiRes.status}]: ${await aiRes.text()}`);
     }
 
     const aiData = await aiRes.json();
