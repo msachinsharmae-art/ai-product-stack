@@ -44,7 +44,6 @@ export const generatePRD = createServerFn({ method: "POST" })
     let transcript = data.rawText?.trim() ?? "";
 
     if (data.audioBase64) {
-      if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY is not configured");
       const audioBuffer = Buffer.from(data.audioBase64, "base64");
       const mimeType = data.audioMimeType || "audio/webm";
       const ext = mimeType.includes("mp3") ? "mp3"
