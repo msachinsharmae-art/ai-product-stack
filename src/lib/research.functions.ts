@@ -16,9 +16,9 @@ export const generateResearch = createServerFn({ method: "POST" })
   .inputValidator((i) => InputSchema.parse(i))
   .handler(async ({ data }): Promise<ResearchResult> => {
     const TAVILY_API_KEY = process.env.TAVILY_API_KEY;
-    const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
+    const GROQ_API_KEY = process.env.GROQ_API_KEY;
     if (!TAVILY_API_KEY) throw new Error("TAVILY_API_KEY is not configured");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY is not configured");
 
     // 1. Tavily search
     const tavRes = await fetch("https://api.tavily.com/search", {
