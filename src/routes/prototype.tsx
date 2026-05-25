@@ -132,9 +132,8 @@ function PrototypePage() {
         {loading && (
           <div className="mt-10 text-sm text-white/60">
             <span className="mr-2 inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
-            {format === "wireframe"
-              ? "Rendering UI wireframe with Gemini Image…"
-              : "Designing prototype with Gemini…"}
+            Designing prototype with Gemini…
+
           </div>
         )}
 
