@@ -11,6 +11,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { OWNER_EMAILS } from "./login";
 
 import appCss from "../styles.css?url";
 
