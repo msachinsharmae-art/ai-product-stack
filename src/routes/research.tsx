@@ -176,11 +176,23 @@ function Markdown({ text }: { text: string }) {
   return <>{out}</>;
 }
 function inline(s: string) {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
+  const esc = (t: string) =>
+    t
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  const safeUrl = (u: string) => {
+    if (!/^https?:\/\//i.test(u)) return "#";
+    if (/[\s"'<>`]/.test(u)) return "#";
+    return esc(u);
+  };
+  return esc(s)
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/\[(\d+)\]/g, '<sup class="text-emerald-400">[$1]</sup>')
-    .replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
+    .replace(/\[([^\]]+)\]\((https?:[^)\s"'<>`]+)\)/g, (_m, label: string, url: string) =>
+      `<a href="${safeUrl(url)}" target="_blank" rel="noreferrer">${label}</a>`,
+    );
 }
+
