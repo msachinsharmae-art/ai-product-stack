@@ -31,10 +31,16 @@ const BLOCKED_DOMAINS = new Set([
   "tutanota.com", "tuta.io",
 ]);
 
-function isCompanyEmail(email: string): { ok: boolean; reason?: string } {
+// Owner / builder accounts — always allowed, even on personal email providers.
+export const OWNER_EMAILS = new Set([
+  "msachinsharmae@gmail.com",
+]);
+
+function isCompanyEmail(email: string): { ok: boolean; reason?: string; owner?: boolean } {
   const trimmed = email.trim().toLowerCase();
   const match = /^[^\s@]+@([^\s@]+\.[^\s@]+)$/.exec(trimmed);
   if (!match) return { ok: false, reason: "Enter a valid email address." };
+  if (OWNER_EMAILS.has(trimmed)) return { ok: true, owner: true };
   const domain = match[1];
   if (BLOCKED_DOMAINS.has(domain)) {
     return {
@@ -42,7 +48,6 @@ function isCompanyEmail(email: string): { ok: boolean; reason?: string } {
       reason: "Please use your official company email — personal providers (Gmail, Yahoo, Outlook, etc.) are not allowed.",
     };
   }
-  // Block obvious free TLDs sometimes used personally
   if (/\.(test|local|example|invalid)$/.test(domain)) {
     return { ok: false, reason: "Use a real company email domain." };
   }
