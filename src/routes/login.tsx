@@ -130,6 +130,9 @@ function LoginPage() {
           <p className="mt-2 text-sm text-white/60">
             Company email only. Personal providers like Gmail, Yahoo, Outlook are not allowed.
           </p>
+          <p className="mt-2 text-xs text-emerald-300/80">
+            Owner / builder accounts are whitelisted and can sign in with any email.
+          </p>
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <div>
