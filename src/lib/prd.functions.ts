@@ -2,10 +2,14 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
+// ~20MB base64 ≈ ~15MB binary audio
+const MAX_AUDIO_BASE64 = 20_000_000;
+const MAX_RAW_TEXT = 50_000;
+
 const InputSchema = z.object({
-  audioBase64: z.string().optional(),
-  audioMimeType: z.string().optional(),
-  rawText: z.string().optional(),
+  audioBase64: z.string().max(MAX_AUDIO_BASE64, "Audio file too large (max ~15MB).").optional(),
+  audioMimeType: z.string().max(100).optional(),
+  rawText: z.string().max(MAX_RAW_TEXT, "Text input too long (max 50,000 characters).").optional(),
   featureHint: z.string().max(500).optional(),
 });
 
@@ -62,7 +66,8 @@ export const generatePRD = createServerFn({ method: "POST" })
         body: formData,
       });
       if (!groqRes.ok) {
-        throw new Error(`Groq transcription failed [${groqRes.status}]: ${await groqRes.text()}`);
+        console.error("Groq transcription failed", groqRes.status, await groqRes.text());
+        throw new Error("Audio transcription service unavailable. Please try again.");
       }
       const groqData = (await groqRes.json()) as { text: string };
       transcript = (data.rawText ? data.rawText + "\n\n" : "") + groqData.text;
@@ -123,8 +128,10 @@ export const generatePRD = createServerFn({ method: "POST" })
     });
 
     if (!aiRes.ok) {
-      if (aiRes.status === 429) throw new Error("Groq rate limit hit. Wait a moment and try again.");
-      throw new Error(`Groq API error [${aiRes.status}]: ${await aiRes.text()}`);
+      const detail = await aiRes.text();
+      console.error("Groq chat failed", aiRes.status, detail);
+      if (aiRes.status === 429) throw new Error("Rate limit hit. Wait a moment and try again.");
+      throw new Error("AI service unavailable. Please try again.");
     }
 
     const aiData = await aiRes.json();
@@ -145,7 +152,10 @@ export const generatePRD = createServerFn({ method: "POST" })
       })
       .select("id")
       .single();
-    if (error) throw new Error(`Failed to save PRD: ${error.message}`);
+    if (error) {
+      console.error("Failed to save PRD", error);
+      throw new Error("Failed to save PRD. Please try again.");
+    }
 
     return { id: row.id, transcript, prd, markdown };
   });
@@ -189,7 +199,10 @@ export const pushToNotion = createServerFn({ method: "POST" })
       body: JSON.stringify({ filter: { value: "page", property: "object" }, page_size: 1 }),
     });
     const searchData = await searchRes.json();
-    if (!searchRes.ok) throw new Error(`Notion search failed: ${JSON.stringify(searchData)}`);
+    if (!searchRes.ok) {
+      console.error("Notion search failed", searchRes.status, searchData);
+      throw new Error("Notion is unavailable. Please try again.");
+    }
     const parent = searchData.results?.[0];
     if (!parent) {
       throw new Error("No accessible Notion page found. Share a page with the Lovable integration in Notion, then retry.");
@@ -209,7 +222,10 @@ export const pushToNotion = createServerFn({ method: "POST" })
       }),
     });
     const created = await createRes.json();
-    if (!createRes.ok) throw new Error(`Notion create failed: ${JSON.stringify(created)}`);
+    if (!createRes.ok) {
+      console.error("Notion create failed", createRes.status, created);
+      throw new Error("Failed to create Notion page. Please try again.");
+    }
     const url: string = created.url;
 
     await supabaseAdmin.from("prds").update({ notion_url: url }).eq("id", data.prdId);
@@ -241,7 +257,10 @@ export const pushToGoogleDocs = createServerFn({ method: "POST" })
       body: JSON.stringify({ title }),
     });
     const created = await createRes.json();
-    if (!createRes.ok) throw new Error(`Google Docs create failed: ${JSON.stringify(created)}`);
+    if (!createRes.ok) {
+      console.error("Google Docs create failed", createRes.status, created);
+      throw new Error("Failed to create Google Doc. Please try again.");
+    }
     const docId: string = created.documentId;
 
     await fetch(`${GW}/documents/${docId}:batchUpdate`, {
@@ -294,7 +313,10 @@ export const pushToSlack = createServerFn({ method: "POST" })
       body: JSON.stringify({ channel, text, mrkdwn: true }),
     });
     const out = await res.json();
-    if (!out.ok) throw new Error(`Slack post failed: ${out.error ?? JSON.stringify(out)}`);
+    if (!out.ok) {
+      console.error("Slack post failed", out);
+      throw new Error("Failed to post to Slack. Please try again.");
+    }
     return { ts: out.ts, channel: out.channel };
   });
 
@@ -353,7 +375,10 @@ export const emailPRD = createServerFn({ method: "POST" })
       }),
     });
     const out = await res.json();
-    if (!res.ok) throw new Error(`Resend failed [${res.status}]: ${JSON.stringify(out)}`);
+    if (!res.ok) {
+      console.error("Resend failed", res.status, out);
+      throw new Error("Failed to send email. Please try again.");
+    }
     return { id: out.id ?? "sent" };
   });
 
