@@ -7,7 +7,7 @@ const InputSchema = z.object({
 });
 
 export type PrototypeResult = {
-  format: "html" | "react" | "wireframe";
+  format: "html" | "react";
   idea: string;
   html?: string;
   react?: string;
