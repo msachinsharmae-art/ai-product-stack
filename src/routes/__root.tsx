@@ -4,9 +4,13 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
+  useNavigate,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 import appCss from "../styles.css?url";
 
@@ -114,22 +118,73 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [authChecked, setAuthChecked] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      setUserEmail(session?.user?.email ?? null);
+      setAuthChecked(true);
+    });
+    supabase.auth.getSession().then(({ data }) => {
+      setUserEmail(data.session?.user?.email ?? null);
+      setAuthChecked(true);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Gate: redirect to /login when unauthenticated (except on /login itself).
+  useEffect(() => {
+    if (!authChecked) return;
+    if (!userEmail && pathname !== "/login") {
+      navigate({ to: "/login" });
+    }
+  }, [authChecked, userEmail, pathname, navigate]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate({ to: "/login" });
+  };
+
+  const isLoginPage = pathname === "/login";
+  const showGate = authChecked && !userEmail && !isLoginPage;
 
   return (
     <QueryClientProvider client={queryClient}>
       <div className="flex min-h-screen flex-col">
         <div className="flex-1">
-          <Outlet />
+          {showGate ? (
+            <div className="flex min-h-screen items-center justify-center bg-[#0a0a0f] text-white">
+              <p className="text-sm text-white/60">Redirecting to sign in…</p>
+            </div>
+          ) : (
+            <Outlet />
+          )}
         </div>
-        <footer className="border-t border-border bg-background/50 py-4 text-center text-xs text-muted-foreground">
-          <p>
-            Registered to <span className="font-semibold text-foreground">Sachin Kumar Sharma</span> · Made with Lovable
-          </p>
-          <p className="mt-1 opacity-70">
-            © {new Date().getFullYear()} · Independent work, not affiliated to any IP or any third-party source — all hosted and made purely on Lovable
-          </p>
-        </footer>
+        {!isLoginPage && (
+          <footer className="border-t border-border bg-background/50 py-4 text-center text-xs text-muted-foreground">
+            <p>
+              Registered to <span className="font-semibold text-foreground">Sachin Kumar Sharma</span> · Made with Lovable
+              {userEmail && (
+                <>
+                  {" · "}
+                  <span className="text-foreground">{userEmail}</span>
+                  {" · "}
+                  <button onClick={handleSignOut} className="text-foreground underline hover:opacity-80">
+                    Sign out
+                  </button>
+                </>
+              )}
+            </p>
+            <p className="mt-1 opacity-70">
+              © {new Date().getFullYear()} · Independent work, not affiliated to any IP or any third-party source — all hosted and made purely on Lovable
+            </p>
+          </footer>
+        )}
       </div>
     </QueryClientProvider>
   );
 }
+
