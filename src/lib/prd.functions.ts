@@ -339,12 +339,6 @@ export const emailPRD = createServerFn({ method: "POST" })
     const row = await loadPRD(data.prdId);
     const prd = row.prd_json as PRDStruct;
 
-    const links: string[] = [];
-    if (row.notion_url) links.push(`<a href="${row.notion_url}" style="color:#10b981">📝 Notion</a>`);
-    if (row.google_doc_url) links.push(`<a href="${row.google_doc_url}" style="color:#10b981">📄 Google Doc</a>`);
-    const shareUrl = `https://project--f1f55728-b17e-40a1-bd4b-3fd32c932927-dev.lovable.app/p/${row.id}`;
-    links.push(`<a href="${shareUrl}" style="color:#10b981">🔗 Share page</a>`);
-
     const esc = (s: string) =>
       String(s)
         .replace(/&/g, "&amp;")
@@ -352,6 +346,21 @@ export const emailPRD = createServerFn({ method: "POST" })
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#39;");
+    const safeUrl = (u: string | null | undefined): string | null => {
+      if (!u) return null;
+      const trimmed = String(u).trim();
+      if (!/^https:\/\//i.test(trimmed)) return null;
+      if (/[\s"'<>`]/.test(trimmed)) return null;
+      return trimmed;
+    };
+
+    const links: string[] = [];
+    const notionSafe = safeUrl(row.notion_url as string | null);
+    const docSafe = safeUrl(row.google_doc_url as string | null);
+    if (notionSafe) links.push(`<a href="${esc(notionSafe)}" style="color:#10b981">📝 Notion</a>`);
+    if (docSafe) links.push(`<a href="${esc(docSafe)}" style="color:#10b981">📄 Google Doc</a>`);
+    const shareUrl = `https://project--f1f55728-b17e-40a1-bd4b-3fd32c932927-dev.lovable.app/p/${row.id}`;
+    links.push(`<a href="${esc(shareUrl)}" style="color:#10b981">🔗 Share page</a>`);
 
     const goals = prd.goals.slice(0, 3).map((g) => `<li style="margin:4px 0">${esc(g)}</li>`).join("");
 
