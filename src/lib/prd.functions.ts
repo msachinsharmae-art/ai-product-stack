@@ -342,7 +342,15 @@ export const emailPRD = createServerFn({ method: "POST" })
     const shareUrl = `https://project--f1f55728-b17e-40a1-bd4b-3fd32c932927-dev.lovable.app/p/${row.id}`;
     links.push(`<a href="${shareUrl}" style="color:#10b981">🔗 Share page</a>`);
 
-    const goals = prd.goals.slice(0, 3).map((g) => `<li style="margin:4px 0">${g}</li>`).join("");
+    const esc = (s: string) =>
+      String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+
+    const goals = prd.goals.slice(0, 3).map((g) => `<li style="margin:4px 0">${esc(g)}</li>`).join("");
 
     const html = `<!doctype html><html><body style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;background:#0a0a0f;color:#fff;margin:0;padding:0">
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0f">
@@ -350,10 +358,11 @@ export const emailPRD = createServerFn({ method: "POST" })
   <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#11111a;border-radius:16px;border:1px solid rgba(255,255,255,0.08)">
     <tr><td style="padding:32px">
       <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#10b981;font-weight:600">PRD Autopilot · Digest</div>
-      <h1 style="font-size:28px;font-weight:800;margin:8px 0 16px;color:#fff;line-height:1.2">${prd.title}</h1>
-      <p style="font-size:14px;color:rgba(255,255,255,0.7);margin:0 0 24px;line-height:1.6">${prd.problem}</p>
+      <h1 style="font-size:28px;font-weight:800;margin:8px 0 16px;color:#fff;line-height:1.2">${esc(prd.title)}</h1>
+      <p style="font-size:14px;color:rgba(255,255,255,0.7);margin:0 0 24px;line-height:1.6">${esc(prd.problem)}</p>
       <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.5);font-weight:600">Top Goals</div>
       <ul style="font-size:14px;color:rgba(255,255,255,0.85);margin:8px 0 24px;padding-left:18px">${goals}</ul>
+
       <div style="margin-top:24px;padding-top:24px;border-top:1px solid rgba(255,255,255,0.08);font-size:13px">${links.join(" &nbsp;·&nbsp; ")}</div>
     </td></tr>
   </table>
@@ -370,7 +379,7 @@ export const emailPRD = createServerFn({ method: "POST" })
       body: JSON.stringify({
         from: "PRD Autopilot <onboarding@resend.dev>",
         to: [data.to],
-        subject: `📋 PRD: ${prd.title}`,
+        subject: `📋 PRD: ${prd.title.replace(/[\r\n]+/g, " ").slice(0, 200)}`,
         html,
       }),
     });
