@@ -75,8 +75,9 @@ function PrototypePage() {
         </h1>
         <p className="mt-4 max-w-2xl text-white/60">
           Describe what you want to build. Pick a format. Get a live HTML prototype you can preview,
-          a React component you can paste, or a wireframe image to drop in a deck.
+          or a React component you can paste into your codebase.
         </p>
+
 
         <form onSubmit={submit} className="mt-10 space-y-4">
           <textarea
