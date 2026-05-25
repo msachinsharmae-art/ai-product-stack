@@ -400,7 +400,10 @@ export const listPRDs = createServerFn({ method: "GET" }).handler(async () => {
     .select("id, title, created_at, notion_url, google_doc_url")
     .order("created_at", { ascending: false })
     .limit(50);
-  if (error) throw new Error(error.message);
+  if (error) {
+    console.error("listPRDs failed", error);
+    throw new Error("Failed to load PRDs. Please try again.");
+  }
   return data ?? [];
 });
 
