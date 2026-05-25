@@ -16,7 +16,7 @@ I'm a Product Manager. Most of my week is spent doing three things over and over
 
 This app does all three in seconds, the way I'd actually want them done.
 
-It's also a personal demonstration that a PM can ship a real, full-stack, AI-native product without an engineering team — using nights and weekends, a Lovable subscription (1-year free via LinkedIn Premium), and a clear point of view on how AI should plug into product workflows.
+It's also a personal demonstration that a PM can ship a real, full-stack, AI-native product without an engineering team — using a Lovable subscription (1-year free via LinkedIn Premium) and a clear point of view on how AI should plug into product workflows.
 
 ---
 
