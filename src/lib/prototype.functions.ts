@@ -22,9 +22,37 @@ export const generatePrototype = createServerFn({ method: "POST" })
     if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY is not configured");
 
     if (data.format === "wireframe") {
-      throw new Error(
-        "Wireframe (image) generation isn't supported with the Groq backend. Pick HTML or React instead — those produce a live, interactive prototype.",
-      );
+      const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
+      if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+
+      const prompt = `A clean, modern UI wireframe mockup for: ${data.idea}. Low-fidelity grayscale wireframe style with placeholder text, boxes for images, clear layout structure, navigation, buttons, and content sections. Flat design, no color, white background, thin black/gray strokes, annotated like a Figma wireframe. Desktop layout.`;
+
+      const imgRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash-image",
+          messages: [{ role: "user", content: prompt }],
+          modalities: ["image", "text"],
+        }),
+      });
+      if (!imgRes.ok) {
+        const detail = await imgRes.text();
+        console.error("Lovable AI image failed", imgRes.status, detail);
+        if (imgRes.status === 429) throw new Error("Rate limit hit. Try again shortly.");
+        if (imgRes.status === 402) throw new Error("AI credits exhausted. Add credits in Settings → Workspace → Usage.");
+        throw new Error("AI image service unavailable. Please try again.");
+      }
+      const imgData = await imgRes.json();
+      const imageUrl: string | undefined = imgData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+      if (!imageUrl) {
+        console.error("Lovable AI image: no image in response", JSON.stringify(imgData).slice(0, 500));
+        throw new Error("Image generation returned no image. Please try again.");
+      }
+      return { format: "wireframe", idea: data.idea, imageDataUrl: imageUrl };
     }
 
     const isHtml = data.format === "html";
