@@ -95,9 +95,9 @@ function PrototypePage() {
                 [
                   { id: "html" as const, label: "HTML preview", desc: "Live, in-page" },
                   { id: "react" as const, label: "React snippet", desc: "Copy-paste" },
-                  { id: "wireframe" as const, label: "Wireframe image", desc: "AI mockup" },
                 ]
               ).map((opt) => (
+
                 <button
                   key={opt.id}
                   type="button"
