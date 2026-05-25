@@ -84,7 +84,7 @@ export const SceneOutro: React.FC = () => {
         <Chip sub="Database + Auth" label="Lovable Cloud" color="#22d3ee" delay={56} />
         <Chip sub="LLM (Gemini 2.5)" label="Lovable AI" color="#a78bfa" delay={72} />
         <Chip sub="Web Search" label="Tavily API" color="#f472b6" delay={88} />
-        <Chip sub="Image Gen" label="Gemini Flash Image" color="#fbbf24" delay={104} />
+        <Chip sub="Voice → Text" label="Groq Whisper" color="#fbbf24" delay={104} />
       </div>
 
       <div
