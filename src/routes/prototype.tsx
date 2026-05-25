@@ -75,8 +75,9 @@ function PrototypePage() {
         </h1>
         <p className="mt-4 max-w-2xl text-white/60">
           Describe what you want to build. Pick a format. Get a live HTML prototype you can preview,
-          a React component you can paste, or a wireframe image to drop in a deck.
+          or a React component you can paste into your codebase.
         </p>
+
 
         <form onSubmit={submit} className="mt-10 space-y-4">
           <textarea
@@ -94,9 +95,9 @@ function PrototypePage() {
                 [
                   { id: "html" as const, label: "HTML preview", desc: "Live, in-page" },
                   { id: "react" as const, label: "React snippet", desc: "Copy-paste" },
-                  { id: "wireframe" as const, label: "Wireframe image", desc: "AI mockup" },
                 ]
               ).map((opt) => (
+
                 <button
                   key={opt.id}
                   type="button"
@@ -131,9 +132,8 @@ function PrototypePage() {
         {loading && (
           <div className="mt-10 text-sm text-white/60">
             <span className="mr-2 inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
-            {format === "wireframe"
-              ? "Rendering UI wireframe with Gemini Image…"
-              : "Designing prototype with Gemini…"}
+            Designing prototype with Gemini…
+
           </div>
         )}
 
@@ -144,27 +144,7 @@ function PrototypePage() {
 }
 
 function PrototypeOutput({ result }: { result: PrototypeResult }) {
-  if (result.format === "wireframe") {
-    return (
-      <div className="mt-10 overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] p-4">
-        <div className="mb-3 flex items-center justify-between px-2">
-          <div className="text-xs uppercase tracking-widest text-white/50">Wireframe</div>
-          <a
-            href={result.imageDataUrl}
-            download="prototype-wireframe.png"
-            className="text-xs text-emerald-300 hover:text-emerald-200"
-          >
-            Download PNG ↓
-          </a>
-        </div>
-        <img
-          src={result.imageDataUrl}
-          alt="Generated UI wireframe"
-          className="w-full rounded-2xl"
-        />
-      </div>
-    );
-  }
+
 
   if (result.format === "html" && result.html) {
     return (
