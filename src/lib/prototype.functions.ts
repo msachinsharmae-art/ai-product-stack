@@ -48,8 +48,10 @@ export const generatePrototype = createServerFn({ method: "POST" })
       }),
     });
     if (!aiRes.ok) {
-      if (aiRes.status === 429) throw new Error("Groq rate limit hit. Try again shortly.");
-      throw new Error(`Groq API error [${aiRes.status}]: ${await aiRes.text()}`);
+      const detail = await aiRes.text();
+      console.error("Groq chat failed", aiRes.status, detail);
+      if (aiRes.status === 429) throw new Error("Rate limit hit. Try again shortly.");
+      throw new Error("AI service unavailable. Please try again.");
     }
     const aiData = await aiRes.json();
     let content: string = aiData.choices?.[0]?.message?.content ?? "";
