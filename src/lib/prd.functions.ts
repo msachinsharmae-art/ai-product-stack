@@ -379,7 +379,7 @@ export const emailPRD = createServerFn({ method: "POST" })
       body: JSON.stringify({
         from: "PRD Autopilot <onboarding@resend.dev>",
         to: [data.to],
-        subject: `📋 PRD: ${prd.title}`,
+        subject: `📋 PRD: ${prd.title.replace(/[\r\n]+/g, " ").slice(0, 200)}`,
         html,
       }),
     });
