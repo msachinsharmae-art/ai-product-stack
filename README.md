@@ -79,7 +79,7 @@ This project is built and hosted on Lovable. To work on it locally:
 Registered to **Sachin Kumar Sharma**. Made with Lovable.
 
 - Conceived, designed, and shipped independently
-- Made entirely on **Lovable** (subscription via LinkedIn Premium 1-year free benefit)
+- Made entirely on **Lovable**
 - Hosted entirely on **Lovable Cloud** — not affiliated with any employer or third-party IP
 - All source code in this repo is independent work
 
