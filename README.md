@@ -76,7 +76,7 @@ This project is built and hosted on Lovable. To work on it locally:
 
 ## Credits & ownership
 
-Built & owned by **Sachin Kumar Sharma** as a personal weekend project.
+Registered to **Sachin Kumar Sharma**. Made with Lovable.
 
 - Conceived, designed, and shipped independently
 - Made entirely on **Lovable** (subscription via LinkedIn Premium 1-year free benefit)
