@@ -73,7 +73,7 @@ export const ScenePrototype: React.FC = () => {
       <div style={{ display: "flex", gap: 14, marginBottom: 28 }}>
         <Tab label="HTML" active={true} delay={30} />
         <Tab label="React" active={false} delay={42} />
-        <Tab label="Wireframe" active={false} delay={54} />
+        
       </div>
 
       {/* Mock browser preview */}
