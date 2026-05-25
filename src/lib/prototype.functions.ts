@@ -3,7 +3,7 @@ import { z } from "zod";
 
 const InputSchema = z.object({
   idea: z.string().trim().min(5).max(2000),
-  format: z.enum(["html", "react", "wireframe"]),
+  format: z.enum(["html", "react"]),
 });
 
 export type PrototypeResult = {
