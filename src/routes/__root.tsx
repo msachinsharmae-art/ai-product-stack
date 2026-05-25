@@ -172,6 +172,11 @@ function RootComponent() {
                 <>
                   {" · "}
                   <span className="text-foreground">{userEmail}</span>
+                  {OWNER_EMAILS.has(userEmail.toLowerCase()) && (
+                    <span className="ml-2 inline-flex items-center rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-black">
+                      Owner
+                    </span>
+                  )}
                   {" · "}
                   <button onClick={handleSignOut} className="text-foreground underline hover:opacity-80">
                     Sign out
