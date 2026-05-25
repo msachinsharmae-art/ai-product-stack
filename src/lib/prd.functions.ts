@@ -170,7 +170,10 @@ async function loadPRD(prdId: string) {
     .select("*")
     .eq("id", prdId)
     .single();
-  if (error || !data) throw new Error(`PRD not found: ${error?.message ?? "unknown"}`);
+  if (error || !data) {
+    console.error("loadPRD failed", error);
+    throw new Error("PRD not found or unavailable.");
+  }
   return data;
 }
 
